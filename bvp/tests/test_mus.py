@@ -5,15 +5,16 @@ Tests for the MUS wrappers.
 """
 
 from numpy.testing import *
-import sys, os, scipy as N
+import scipy as N
 
 set_package_path()
 import bvp.mus
-del sys.path[0]
+restore_path()
 
-sys.path.append(os.path.dirname(__file__))
+set_local_path()
 from testutils import *
 import test_problems
+restore_path()
 
 def solve_with_mus(problem, **kw):
 

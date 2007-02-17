@@ -9,5 +9,7 @@ import jacobian
 import examples
 
 __all__ = filter(lambda s: not s.startswith('_'), dir())
-from numpy.testing import ScipyTest as _ScipyTest
-test = _ScipyTest("bvp").test
+
+def test(level=1, verbosity=1):
+    from numpy.testing import ScipyTest as _ScipyTest
+    return _ScipyTest().test(level, verbosity)

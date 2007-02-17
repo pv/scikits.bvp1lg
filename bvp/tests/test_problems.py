@@ -5,11 +5,12 @@ Some example problems for tests
 """
 from __future__ import division
 from numpy.testing import *
-import sys, os, scipy as N
+import scipy as N
 N.pkgload('linalg', 'interpolate', 'special')
 
-sys.path.append(os.path.dirname(__file__))
+set_local_path()
 from testutils import *
+restore_path()
 
 
 ###############################################################################

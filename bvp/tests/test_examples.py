@@ -4,15 +4,14 @@
 Tests examples
 """
 from numpy.testing import *
-import sys, os
 
 set_package_path()
 import bvp.examples
 restore_path()
 
-sys.path.append(os.path.dirname(__file__))
+set_local_path()
 from testutils import *
-import test_problems
+restore_path()
 
 test_doc = get_doctest_checker([bvp.examples])
 

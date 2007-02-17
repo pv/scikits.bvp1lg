@@ -5,15 +5,16 @@ Tests for the partial derivative routines
 """
 
 from numpy.testing import *
-import sys, os, scipy as N
+import scipy as N
 
 set_package_path()
 import bvp.jacobian, bvp.colnew
 restore_path()
 
-sys.path.append(os.path.dirname(__file__))
+set_local_path()
 from testutils import *
 import test_problems
+restore_path()
 
 class test_jacobian(ScipyTestCase):
     def check_problems(self):

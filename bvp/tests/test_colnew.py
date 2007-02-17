@@ -5,16 +5,17 @@ Tests for the COLNEW wrappers.
 """
 
 from numpy.testing import *
-import os, sys, scipy as N
+import scipy as N
 import inspect
 
 set_package_path()
 import bvp.colnew
 restore_path()
 
-sys.path.append(os.path.dirname(__file__))
+set_local_path()
 from testutils import *
 from test_problems import *
+restore_path()
 
 ###############################################################################
 

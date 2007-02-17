@@ -10,4 +10,4 @@ import examples
 
 __all__ = filter(lambda s: not s.startswith('_'), dir())
 from numpy.testing import ScipyTest as _ScipyTest
-test = _ScipyTest().test
+test = _ScipyTest("bvp").test

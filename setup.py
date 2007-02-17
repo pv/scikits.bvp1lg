@@ -57,6 +57,7 @@ def configuration(parent_package='', top_path=None):
                          library_dirs=atlas_info['library_dirs'])
 
     config.add_data_files('LICENSE.txt', 'TODO')
+    config.add_subpackage('tests', 'bvp/tests')
     
     return config
 

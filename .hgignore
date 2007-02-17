@@ -2,6 +2,7 @@ syntax:glob
 *.pyc
 *.o
 *.so
+*.egg-info
 *~
 dist/*
 build/*

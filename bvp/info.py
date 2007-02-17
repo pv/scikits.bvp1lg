@@ -31,5 +31,12 @@ __date__ = "2006-10-14"
 DESCRIPTION = "Boundary value problem solvers for ODEs"
 URL = "http://www.iki.fi/pav/bvp"
 EMAIL = "pav@iki.fi"
+LICENSE = "Unclear. (Python code: BSD; Fortran code: see LICENSE.txt)"
+LONG_DESCRIPTION = """\
+Solvers for boundary value problems for ODEs.
+
+These are implemented by wrapping the COLNEW and MUS Fortran
+codes from netlib.org.
+"""
 
 postpone_import = 1

@@ -31,11 +31,11 @@ conditions:
 	about the license. Some linpack code is included already in Scipy,
 	though.
 
-Use these at your own legal risk.
+Use this module at your own legal risk!
 
 
-License of the Python codes (*.py, *.pyf)
-=========================================
+License of the Python codes (bvp/*)
+===================================
 
 Copyright (c) 2006 Pauli Virtanen.
 

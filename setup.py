@@ -36,8 +36,10 @@ def configuration(parent_package='', top_path=None):
                            author=info.__author__,
                            author_email=info.EMAIL,
                            url=info.URL,
-                           license="BSD",
+                           license=info.LICENSE,
                            description=info.DESCRIPTION,
+                           long_description=info.LONG_DESCRIPTION,
+                           install_requires=["numpy >= 1.0", "scipy >= 0.5"],
                            )
 
     config.add_extension('_colnew',

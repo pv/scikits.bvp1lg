@@ -3,6 +3,8 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt for the BSD-style license.
 
+import setuptools
+
 from numpy.distutils.misc_util import Configuration
 
 from numpy.distutils.system_info import get_info,dict_append,\

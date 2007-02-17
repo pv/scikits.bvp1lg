@@ -1,0 +1,143 @@
+! -*-f90-*-
+
+! Author: Pauli Virtanen <pav@iki.fi>, 2006.
+! All rights reserved. See LICENSE.txt for the BSD-style license.
+
+python module _mus__user__routines
+interface mus_user_interface
+   subroutine fdif(n, t, y, f)
+     integer, intent(in,hide) :: n
+     double precision, intent(in) :: t
+     double precision, dimension(n), intent(in) :: y
+     double precision, dimension(n), intent(out) :: f
+   end subroutine fdif
+
+   subroutine flin(n, t, y, f)
+     integer, intent(in,hide) :: n
+     double precision, intent(in) :: t
+     double precision, dimension(n), intent(in) :: y
+     double precision, dimension(n), intent(out) :: f
+   end subroutine flin
+
+   subroutine gsub(n, ya, yb, fg, dga, dgb)
+     integer, intent(in,hide) :: n
+     double precision, dimension(n), intent(in) :: ya, yb
+     double precision, dimension(n), intent(out) :: fg
+     double precision, dimension(n,n), intent(out) :: dga, dgb
+   end subroutine gsub
+
+   subroutine y0t(n, t, y)
+     integer, intent(in,hide) :: n
+     double precision, intent(in) :: t
+     double precision, dimension(n), intent(out) :: y
+   end subroutine y0t
+end interface
+end python module _mus__user__routines
+
+python module _mus
+  interface
+     subroutine musn(fdif,y0t,gsub,n,a,b,er,ti,nti,nrti,amp,itlim,y,q,u, &
+                     nu,d,phi,kp,w,lw,iw,liw,wg,lwg,ierror)
+
+       !! Problem specification
+
+       use _mus__user__routines
+
+       external :: fdif, y0t, gsub
+
+       integer, intent(in) :: n
+       double precision, intent(in) :: a, b
+
+       !! Mesh control
+
+       double precision, dimension(nti), intent(in, out) :: ti
+       integer, check(nti >= nrti+1), intent(in) :: nti
+       integer, intent(in,out) :: nrti
+
+       double precision, intent(in), optional :: amp = 0
+
+       !! Tolerance 
+
+       double precision, dimension(5), intent(in,out) :: er
+
+       !! Output
+       
+       double precision, dimension(n, nti), intent(out) :: y
+       integer, intent(in,out) :: ierror
+
+       !! Size & work control
+       
+       integer, intent(in) :: itlim ! iteration limit
+       integer, intent(in) :: lwg   ! mesh points
+
+       !! Work arrays
+
+       integer, intent(hide) :: kp
+
+       integer, intent(hide) :: nu = n*(n+1)/2
+
+       double precision, dimension(n, n, nti), intent(cache,hide) :: q
+       double precision, dimension(nu, nti), intent(cache,hide) :: u, phi
+       double precision, dimension(n, nti), intent(cache,hide) :: d
+
+       integer, intent(hide) :: lw = 7*n+3*n*nti+4*n*n
+       double precision, dimension(lw), intent(cache,hide) :: w
+
+       integer, intent(hide) :: liw = 3*n+nti
+       double precision, dimension(liw), intent(cache,hide) :: iw
+
+       double precision, intent(cache,hide) :: wg(lwg)
+     end subroutine musn
+
+     subroutine musl(flin,fdif,n,ihom,a,b,ma,mb,bcv,amp,er,nrti,ti, &
+                     nti,y,u,nu,q,d,kpart,phirec,w,lw,iw,liw,ierror)
+
+       !! Problem specification
+
+       use _mus__user__routines
+
+       external :: flin, fdif
+
+       integer, intent(in) :: n
+       double precision, intent(in) :: a, b
+
+       integer, intent(in) :: ihom
+
+       double precision, dimension(n, n), intent(in) :: ma, mb
+       double precision, dimension(n), intent(in) :: bcv
+
+       !! Mesh control
+
+       double precision, dimension(nti), intent(in,out) :: ti
+       integer, check(nti >= nrti+1), intent(in) :: nti
+       integer, intent(in,out) :: nrti
+
+       double precision, intent(in), optional :: amp = 0
+
+       !! Tolerance 
+
+       double precision, dimension(5), intent(in,out) :: er
+
+       !! Output
+       
+       double precision, dimension(n, nti), intent(out) :: y
+       integer, intent(in,out) :: ierror
+
+       !! Work arrays
+
+       integer, intent(hide) :: nu = n*(n+1)/2
+
+       double precision, dimension(n, n, nti), intent(cache,hide) :: q
+       double precision, dimension(nu, nti), intent(cache,hide) :: u, phirec
+       double precision, dimension(n, nti), intent(cache,hide) :: d
+
+       integer, intent(hide) :: kpart
+
+       integer, intent(hide) :: lw = 8*n+2*n*n
+       double precision, dimension(lw), intent(cache,hide) :: w
+
+       integer, intent(hide) :: liw = 3*n
+       double precision, dimension(liw), intent(cache,hide) :: iw
+     end subroutine musl
+  end interface
+end python module _mus

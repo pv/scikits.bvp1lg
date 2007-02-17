@@ -1,0 +1,21 @@
+# Author: Pauli Virtanen <pav@iki.fi>, 2006.
+# All rights reserved. See LICENSE.txt for the BSD-style license.
+"""
+Exceptions for the bvp package
+"""
+
+class NoConvergence(RuntimeError):
+    """No numerical convergence obtained"""
+    pass
+
+class SingularCollocationMatrix(NoConvergence):
+    """The collocation matrix was singular (double-check your equations or try a different initial guess)"""
+    pass
+
+class TooManySubintervals(NoConvergence):
+    """COLNEW couldn't find a solution within the given storage limits"""
+    pass
+
+class SingularityError(NoConvergence):
+    """A solution element became singular"""
+    pass

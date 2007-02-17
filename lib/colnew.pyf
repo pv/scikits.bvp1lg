@@ -1,0 +1,93 @@
+! -*-f90-*-
+
+! Author: Pauli Virtanen <pav@iki.fi>, 2006.
+! All rights reserved. See LICENSE.txt for the BSD-style license.
+
+python module _colnew__user__routines
+interface colnew_user_interface
+   subroutine fsub(ncomp, mstar, nx, x, z, f)
+     integer, intent(in, hide) :: ncomp, mstar, nx
+     double precision, dimension(nx), intent(in) :: x
+     double precision, dimension(mstar, nx), intent(in) :: z
+     double precision, dimension(ncomp, nx), intent(out) :: f
+   end subroutine fsub
+
+   subroutine dfsub(ncomp, mstar, nx, x, z, df)
+     integer, intent(in, hide) :: ncomp, mstar, nx
+     double precision, dimension(nx), intent(in) :: x
+     double precision, dimension(mstar, nx), intent(in) :: z
+     double precision, dimension(ncomp, mstar, nx), intent(out) :: df
+   end subroutine dfsub
+
+   subroutine gsub(ncomp, mstar, z, g)
+     integer, intent(in, hide) :: ncomp, mstar
+     double precision, dimension(mstar, mstar), intent(in) :: z
+     double precision, dimension(mstar), intent(out) :: g
+   end subroutine gsub
+
+   subroutine dgsub(ncomp, mstar, z, dg)
+     integer, intent(in, hide) :: ncomp, mstar
+     double precision, dimension(mstar, mstar), intent(in) :: z
+     !! The Fortran routine expects dg(i,j) = d g_j / d z_i,
+     !! but it is more consistent to have dg(i,j) = d g_i / d z_j.
+     !! Hence, intent(c).
+     double precision, dimension(mstar, mstar), intent(out,c) :: dg
+   end subroutine dgsub
+
+   subroutine guess(ncomp, mstar, nx, x, z, dmval)
+     integer, intent(in, hide) :: ncomp, mstar, nx
+     double precision, dimension(nx), intent(in) :: x
+     double precision, dimension(mstar, nx), intent(out) :: z
+     double precision, dimension(ncomp, nx), intent(out) :: dmval
+   end subroutine guess
+end interface
+end python module _colnew__user__routines
+
+python module _colnew
+  usercode '''
+int get_mstar(int ncomp, int *m) {
+  int mstar = 0, i;
+  for (i = 0; i < ncomp; ++i) mstar += m[i];
+  return mstar;
+}
+'''
+
+  interface
+     subroutine colnew (ncomp, m, aleft, aright, zeta, ipar, ltol, &
+          tol, fixpnt, ispace, fspace, iflag, &
+          fsub, dfsub, gsub, dgsub, guess)
+
+       use _colnew__user__routines
+
+       integer, check(ncomp > 0 && ncomp <= 20), intent(in) :: ncomp
+       integer, dimension(ncomp), intent(in) :: m
+       
+       double precision :: aleft, aright
+
+       double precision, dimension(get_mstar(ncomp, m)) :: zeta
+
+       integer, dimension(11), intent(in) :: ipar
+
+       integer, dimension(ipar[3]), intent(in) :: ltol
+
+       double precision, dimension(ipar[3]), intent(in) :: tol
+
+       double precision, dimension(ipar[10]), intent(in) :: fixpnt
+
+       integer, intent(cache), dimension(ipar[5]), intent(inout) :: ispace
+
+       double precision, dimension(ipar[4]), intent(inout) :: fspace
+
+       integer, intent(out) :: iflag
+
+       external :: fsub, dfsub, gsub, dgsub, guess
+     end subroutine colnew
+
+     subroutine appsln(x, z, fspace, ispace)
+       double precision, intent(in) :: x
+       double precision, dimension(ispace[3]), intent(out) :: z
+       double precision, dimension(*), intent(in) :: fspace
+       integer, dimension(*), intent(in) :: ispace
+     end subroutine appsln
+  end interface
+end python module _colnew

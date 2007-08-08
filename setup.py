@@ -3,7 +3,9 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt.
 
-import setuptools
+try: import setuptools
+except ImportError: pass
+
 import warnings
 
 from numpy.distutils.misc_util import Configuration

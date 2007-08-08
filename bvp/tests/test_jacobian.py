@@ -16,7 +16,7 @@ from testutils import *
 import test_problems
 restore_path()
 
-class test_jacobian(ScipyTestCase):
+class test_jacobian(NumpyTestCase):
     def check_problems(self):
         for problem in [test_problems.Problem1(),
                         test_problems.Problem2(),
@@ -96,4 +96,4 @@ class test_jacobian(ScipyTestCase):
 test_doc = get_doctest_checker([bvp.jacobian])
 
 if __name__ == "__main__":
-    ScipyTest().run()
+    NumpyTest().run()

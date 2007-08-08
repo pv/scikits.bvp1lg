@@ -58,7 +58,7 @@ def solve_with_mus(problem, **kw):
                                     **kw)
     return x, y
 
-class test_mus(ScipyTestCase):
+class test_mus(NumpyTestCase):
     def check_problem_1(self):
         """Solve problem #1 and compare to exact solution"""
         problem = test_problems.Problem1()
@@ -106,4 +106,4 @@ class test_mus(ScipyTestCase):
 test_doc = get_doctest_checker([bvp.mus])
 
 if __name__ == "__main__":
-    ScipyTest().run()
+    NumpyTest().run()

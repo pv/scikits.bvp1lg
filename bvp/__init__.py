@@ -11,5 +11,5 @@ import examples
 __all__ = filter(lambda s: not s.startswith('_'), dir())
 
 def test(level=1, verbosity=1):
-    from numpy.testing import ScipyTest as _ScipyTest
-    return _ScipyTest().test(level, verbosity)
+    from numpy.testing import NumpyTest as _NumpyTest
+    return _NumpyTest().test(level, verbosity)

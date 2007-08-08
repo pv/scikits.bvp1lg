@@ -16,9 +16,9 @@ def _get_doctests(m):
     else:
         return m
 
-class _DocTestChecker(ScipyTestCase):
+class _DocTestChecker(NumpyTestCase):
     def __init__(self, *args, **kw):
-        ScipyTestCase.__init__(self, *args, **kw)
+        NumpyTestCase.__init__(self, *args, **kw)
         
         if hasattr(doctest, 'DocTestFinder'):
             self.runner = doctest.DocTestRunner(verbose=False)

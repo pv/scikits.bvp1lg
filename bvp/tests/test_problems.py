@@ -919,4 +919,4 @@ class Problem9(TwoPointBVP):
 test_doc = get_doctest_checker([__import__(__name__)])
 
 if __name__ == "__main__":
-    ScipyTest().run()
+    NumpyTest().run()

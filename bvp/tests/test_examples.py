@@ -18,4 +18,4 @@ test_doc = get_doctest_checker([bvp.examples])
 ###############################################################################
 
 if __name__ == "__main__":
-    ScipyTest().run()
+    NumpyTest().run()

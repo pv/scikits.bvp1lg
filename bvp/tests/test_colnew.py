@@ -78,7 +78,7 @@ def solve_with_colnew(problem, numerical_jacobians=False,
 
 ###############################################################################
 
-class test_colnew(ScipyTestCase):
+class test_colnew(NumpyTestCase):
     def check_problem_1(self, num_jac=False):
         """Solve problem #1 and compare to exact solution"""
         problem = Problem1()
@@ -344,4 +344,4 @@ test_doc = get_doctest_checker([bvp.colnew])
 ###############################################################################
 
 if __name__ == "__main__":
-    ScipyTest().run()
+    NumpyTest().run()

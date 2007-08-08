@@ -1,5 +1,5 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
-# All rights reserved. See LICENSE.txt for the BSD-style license.
+# All rights reserved. See LICENSE.txt.
 """
 Solve boundary value problems for ODEs
 

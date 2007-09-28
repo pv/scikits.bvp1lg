@@ -24,7 +24,7 @@ Contents
   Examples (in docstrings).
 """
 
-__version__ = "0.2"
+__version__ = "0.2.dev"
 __author__ = "Pauli Virtanen <pav@iki.fi>"
 __date__ = "2006-10-14"
 

@@ -89,5 +89,13 @@ int get_mstar(int ncomp, int *m) {
        double precision, dimension(*), intent(in) :: fspace
        integer, dimension(*), intent(in) :: ispace
      end subroutine appsln
+
+     subroutine appsln_many(nx, x, z, fspace, ispace)
+       integer, intent(in) :: nx
+       double precision, dimension(nx), intent(in) :: x
+       double precision, dimension(ispace[3],nx), intent(out) :: z
+       double precision, dimension(*), intent(in) :: fspace
+       integer, dimension(*), intent(in) :: ispace
+     end subroutine appsln_many
   end interface
 end python module _colnew

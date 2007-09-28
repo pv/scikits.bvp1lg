@@ -93,9 +93,7 @@ class Solution(object):
             is x.shape + (mstar,).
         """
         x = _N.asarray(x)
-        y = _N.empty([x.size, self.mstar])
-        for i, xpos in enumerate(x.flat):
-            y[i,:] = _colnew.appsln(xpos, self.fspace, self.ispace)
+        y = _colnew.appsln_many(x.flat, self.fspace, self.ispace).T
         y.shape = x.shape + (self.mstar,)
         return y
 

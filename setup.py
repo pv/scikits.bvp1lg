@@ -7,12 +7,9 @@ try: import setuptools
 except ImportError: pass
 
 import warnings
-
 from numpy.distutils.misc_util import Configuration
-
-from numpy.distutils.system_info import get_info,dict_append,\
-     AtlasNotFoundError,LapackNotFoundError,BlasNotFoundError,\
-     LapackSrcNotFoundError,BlasSrcNotFoundError
+from numpy.distutils.system_info import (get_info, AtlasNotFoundError,
+                                         BlasNotFoundError)
 
 def configuration(parent_package='', top_path=None):
     blas_info = get_info('atlas')

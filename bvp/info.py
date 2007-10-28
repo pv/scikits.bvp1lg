@@ -24,14 +24,14 @@ Contents
   Examples (in docstrings).
 """
 
-__version__ = "0.2.dev"
+__version__ = "0.2.1"
 __author__ = "Pauli Virtanen <pav@iki.fi>"
-__date__ = "2006-10-14"
+__date__ = "2007-10-28"
 
 DESCRIPTION = "Boundary value problem solvers for ODEs"
 URL = "http://www.iki.fi/pav/bvp"
 EMAIL = "pav@iki.fi"
-LICENSE = "Unclear. (Python code: BSD; Fortran code: see LICENSE.txt)"
+LICENSE = "Noncommercial, see LICENSE.txt"
 LONG_DESCRIPTION = """\
 Solvers for boundary value problems for ODEs.
 

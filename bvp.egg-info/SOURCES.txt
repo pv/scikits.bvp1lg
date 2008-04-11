@@ -1,3 +1,5 @@
+LICENSE.txt
+TODO
 setup.py
 ./bvp/__init__.py
 ./bvp/colnew.py
@@ -17,6 +19,7 @@ setup.py
 ./lib/colnew.pyf
 ./lib/dgefa.f
 ./lib/dgesl.f
+./lib/mus.doc
 ./lib/mus.pyf
 ./lib/mus1.f
 ./lib/mus2.f

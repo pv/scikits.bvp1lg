@@ -401,6 +401,9 @@ def solve(boundary_points,
         len(fixpnt),         # number of additional fixed points
         ], _N.int_)
 
+    if len(fixpnt) == 0:
+        fixpnt = _N.array([0], _N.float64)
+
     ## Initial guess
 
     def dummy_guess(x): raise ValueError("Invalid initial guess")

@@ -24,19 +24,4 @@ Contents
   Examples (in docstrings).
 """
 
-__version__ = "0.2.dev"
-__author__ = "Pauli Virtanen <pav@iki.fi>"
-__date__ = "2007-10-28"
-
-DESCRIPTION = "Boundary value problem solvers for ODEs"
-URL = "http://www.iki.fi/pav/bvp"
-EMAIL = "pav@iki.fi"
-LICENSE = "Noncommercial, see LICENSE.txt"
-LONG_DESCRIPTION = """\
-Solvers for boundary value problems for ODEs.
-
-These are implemented by wrapping the COLNEW and MUS Fortran
-codes from netlib.org.
-"""
-
-postpone_import = 1
+__version__ = "0.2.1.dev"

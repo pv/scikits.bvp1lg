@@ -11,7 +11,6 @@ bvp/mus.py
 bvp/setup.py
 bvp.egg-info/PKG-INFO
 bvp.egg-info/SOURCES.txt
-bvp.egg-info/SOURCES.txt~
 bvp.egg-info/dependency_links.txt
 bvp.egg-info/native_libs.txt
 bvp.egg-info/requires.txt

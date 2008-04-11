@@ -31,5 +31,5 @@ def configuration(parent_package='', top_path=None):
                                   '../lib/dgefa.f'],
                          libraries=blas_info['libraries'],
                          library_dirs=blas_info['library_dirs'])
-    config.add_data_dir('tests')
+    config.add_subpackage('tests')
     return config

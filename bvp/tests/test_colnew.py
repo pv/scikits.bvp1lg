@@ -314,6 +314,29 @@ class test_colnew(NumpyTestCase):
         solve_with_colnew(Problem7(), check_jacobian_only=True)
         solve_with_colnew(Problem8(), check_jacobian_only=True)
 
+    def check_reentrancy(self):
+        count = [0]
+        depth = [0]
+        class RecursiveProblem(Problem1):
+            def f(self, x, z):
+                if count[0] < 20 and depth[0] < 7:
+                    count[0] += 1
+                    depth[0] += 1
+                    problem = RecursiveProblem()
+                    depth[0] -= 1
+                    solution = solve_with_colnew(problem)
+                    xx = N.linspace(problem.a, problem.b, 100)
+                    assert N.allclose(problem.exact_solution(xx),
+                                      solution(xx)[:,0],
+                                      rtol=1e-5)
+                return Problem1.f(self, x, z)
+
+        problem1 = RecursiveProblem()
+        
+        solution = solve_with_colnew(problem1)
+        x = N.linspace(problem1.a, problem1.b, 100)
+        assert N.allclose(problem1.exact_solution(x), solution(x)[:,0],
+                          rtol=1e-5)
 
 ###############################################################################
 

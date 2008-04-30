@@ -179,9 +179,6 @@ def solve(boundary_points,
             ncomp <= 120
             mstar <= 240
 
-    :warning:
-        Colnew is not reentrant.
-
     :Parameters:
     
       - `degrees`:
@@ -294,6 +291,43 @@ def solve(boundary_points,
         Invalid output from user routines. (FIXME: these should be fixed)
     """
 
+    try:
+        _colnew_enter()
+        return _colnew_solve(boundary_points,
+                             degrees, fsub, gsub,
+                             dfsub, dgsub,
+                             left, right,
+                             is_linear,
+                             initial_guess,
+                             coarsen_initial_guess_mesh,
+                             initial_mesh,
+                             tolerances,
+                             adaptive_mesh_selection,
+                             verbosity,
+                             collocation_points,
+                             extra_fixed_points,
+                             problem_regularity,
+                             maximum_mesh_size,
+                             vectorized)
+    finally:
+        _colnew_exit()
+
+def _colnew_solve(boundary_points,
+                  degrees, fsub, gsub,
+                  dfsub, dgsub,
+                  left, right,
+                  is_linear,
+                  initial_guess,
+                  coarsen_initial_guess_mesh,
+                  initial_mesh,
+                  tolerances,
+                  adaptive_mesh_selection,
+                  verbosity,
+                  collocation_points,
+                  extra_fixed_points,
+                  problem_regularity,
+                  maximum_mesh_size,
+                  vectorized):
     ## Check degrees
 
     ncomp = len(degrees)
@@ -546,6 +580,50 @@ def solve(boundary_points,
     
     return Solution(ispace, fspace)
 
+
+_colnew_stack = []
+_colnew_depth = 0
+_colnew_commons = [_colnew.colapr, _colnew.colbas, _colnew.colest,
+                   _colnew.colloc, _colnew.colmsh, _colnew.colnln,
+                   _colnew.colord, _colnew.colout, _colnew.colsid]
+
+def _colnew_enter():
+    """
+    Push old COLNEW data to stack.
+    
+    Colnew itself is written in Fortran using COMMON blocks,
+    and so it is not reentrant. We make it reentrant by manually
+    pushing and popping the COMMON contents on and off a stack.
+    
+    """
+    global _colnew_stack, _colnew_depth, _colnew_commons
+
+    _colnew_depth += 1
+    if _colnew_depth == 1:
+        return # nothing needs to be done yet
+
+    stack_entry = []
+    for j, com in enumerate(_colnew_commons):
+        stack_sub = {}
+        for name in dir(com):
+            stack_sub[name] = _N.array(getattr(com, name), copy=True)
+        stack_entry.append(stack_sub)
+    _colnew_stack.append(stack_entry)
+
+def _colnew_exit():
+    """
+    Pop old COLNEW data from stack.
+    """
+    global _colnew_stack, _colnew_depth, _colnew_commons
+
+    _colnew_depth -= 1
+    if _colnew_depth == 0:
+        return # nothing needs to be done
+
+    entry = _colnew_stack.pop()
+    for com, sub in zip(_colnew_commons, entry):
+        for name in dir(com):
+            getattr(com, name)[...] = sub[name]
 
 def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
                     vectorized=True, **kw):

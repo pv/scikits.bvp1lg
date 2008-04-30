@@ -81,6 +81,29 @@ int get_mstar(int ncomp, int *m) {
        integer, intent(out) :: iflag
 
        external :: fsub, dfsub, gsub, dgsub, guess
+
+       !! common blocks
+       real*8 dimension(7) :: rho
+       real*8 dimension(49) :: coef
+       integer dimension(120) :: mt
+       real*8 :: precis, tleft, tright
+       real*8 dimension(240) :: ttl, wgtmsh, wgterr, tolin, root, tzeta
+       integer dimension(240) :: jtol, lttol
+       integer :: k, nc, mstar, kd, mmax, iout, iprint, mshflg, mshnum, &
+            mshlmt, mshalt, ntol, izeta, idum, n, nold, nmax, nz, ndmz, &
+            nonlin, iter, limit, icare, iguess
+       real*8 dimension(28) :: b
+       real*8 dimension(28,7) :: acol
+       real*8 dimension(28,4) :: asave
+       common /colloc/ rho,coef
+       common /colord/ k,nc,mstar,kd,mmax,mt
+       common /colout/ precis,iout,iprint
+       common /colmsh/ mshflg,mshnum,mshlmt,mshalt
+       common /colest/ ttl,wgtmsh,wgterr,tolin,root,jtol,lttol,ntol
+       common /colsid/ tzeta,tleft,tright,izeta,idum
+       common /colapr/ n,nold,nmax,nz,ndmz
+       common /colnln/ nonlin,iter,limit,icare,iguess
+       common /colbas/ b,acol,asave
      end subroutine colnew
 
      subroutine appsln(x, z, fspace, ispace)

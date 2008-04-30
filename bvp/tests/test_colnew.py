@@ -323,7 +323,6 @@ class test_colnew(NumpyTestCase):
                 # 1 2 3 4 5 6 4 5 5 3 4 3 1 2 2 0
                 if count[0] + 2*depth[0] + 3*((count[0]+2) % 3) < 20:
                     count[0] += 1
-                    print depth
                     depth[0] += 1
                     problem = RecursiveProblem()
                     solution = solve_with_colnew(problem)

@@ -319,12 +319,15 @@ class test_colnew(NumpyTestCase):
         depth = [0]
         class RecursiveProblem(Problem1):
             def f(self, x, z):
-                if count[0] < 20 and depth[0] < 7:
+                # work out a back-and-forth jumping recursion
+                # 1 2 3 4 5 6 4 5 5 3 4 3 1 2 2 0
+                if count[0] + 2*depth[0] + 3*((count[0]+2) % 3) < 20:
                     count[0] += 1
+                    print depth
                     depth[0] += 1
                     problem = RecursiveProblem()
-                    depth[0] -= 1
                     solution = solve_with_colnew(problem)
+                    depth[0] -= 1
                     xx = N.linspace(problem.a, problem.b, 100)
                     assert N.allclose(problem.exact_solution(xx),
                                       solution(xx)[:,0],

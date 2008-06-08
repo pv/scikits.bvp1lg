@@ -20,7 +20,7 @@ if __name__ == "__main__":
         name='bvp',
         author="Pauli Virtanen <pav@iki.fi>",
         author_email="pav@iki.fi",
-        version="0.2.4",
+        version="0.2.4.dev",
         url="http://www.iki.fi/pav/software/bvp",
         license="Noncommercial, see LICENSE.txt",
         description="Boundary value problem solvers for ODEs",

@@ -378,7 +378,7 @@ def _colnew_solve(boundary_points,
 
     ## Allocate work space
     
-    ispace = _N.empty([nispace], _N.int_)
+    ispace = _N.empty([nispace], _N.int32)
     fspace = _N.empty([nfspace], _N.float64)
 
     ## Boundary points
@@ -433,7 +433,7 @@ def _colnew_solve(boundary_points,
         0,                   # initial guess type (see below)
         problem_regularity,  # problem regularity
         len(fixpnt),         # number of additional fixed points
-        ], _N.int_)
+        ], _N.int32)
 
     if len(fixpnt) == 0:
         fixpnt = _N.array([0], _N.float64)

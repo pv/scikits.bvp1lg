@@ -22,10 +22,10 @@ def jacobian(f, u, eps=1e-6):
     f_shape = f0.shape
     nf = _N.prod(f_shape)
 
-    df = _N.empty([nf, nu])
+    df = _N.empty([nf, nu], dtype=u.dtype)
     
     for k in range(nu):
-        du = _N.zeros(nu)
+        du = _N.zeros(nu, dtype=u.dtype)
         du[k] = max(eps*abs(u.flat[k]), eps)
         f1 = _N.asarray(f(u + _N.reshape(du, u_shape)))
         df[:,k] = _N.reshape((f1 - f0) / eps, [nf])

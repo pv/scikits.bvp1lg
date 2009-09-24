@@ -96,7 +96,7 @@ class test_colnew(NumpyTestCase):
                           rtol=1e-3, atol=1e-6)
 
     def check_complex_problem_2(self, num_jac=False):
-        """Solve problem #2 and compare to exact solution"""
+        """Solve problem (complex-valued) #2 and compare to exact solution"""
         problem = ComplexProblem2()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac,
                                      is_complex=True)

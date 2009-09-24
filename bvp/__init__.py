@@ -10,6 +10,6 @@ import examples
 
 __all__ = filter(lambda s: not s.startswith('_'), dir())
 
-def test(level=1, verbosity=1):
+def test(level=1, verbosity=1, **kw):
     from numpy.testing import NumpyTest as _NumpyTest
-    return _NumpyTest().test(level, verbosity)
+    return _NumpyTest().test(level, verbosity, **kw)

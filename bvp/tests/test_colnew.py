@@ -43,7 +43,7 @@ def solve_with_colnew(problem, numerical_jacobians=False,
         x = problem.dg(z[:,a_idx], z[:,b_idx])
         return N.r_[x[0][a_map,:], x[1][b_map,:]]
 
-    if problem.dg == None:
+    if problem.dg is None:
         dgsub = None
 
     if 'dgsub' not in kw:
@@ -91,6 +91,15 @@ class test_colnew(NumpyTestCase):
         """Solve problem #2 and compare to exact solution"""
         problem = Problem2()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
+        x = N.linspace(problem.a, problem.b, 100)
+        assert N.allclose(problem.exact_solution(x), solution(x),
+                          rtol=1e-3, atol=1e-6)
+
+    def check_complex_problem_2(self, num_jac=False):
+        """Solve problem #2 and compare to exact solution"""
+        problem = ComplexProblem2()
+        solution = solve_with_colnew(problem, numerical_jacobians=num_jac,
+                                     is_complex=True)
         x = N.linspace(problem.a, problem.b, 100)
         assert N.allclose(problem.exact_solution(x), solution(x),
                           rtol=1e-3, atol=1e-6)

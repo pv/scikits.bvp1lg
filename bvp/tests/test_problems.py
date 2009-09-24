@@ -52,6 +52,9 @@ class TwoPointBVP(object):
     vectorized = False
     """Are the functions vectorizable over x?"""
 
+    dtype = N.float64
+    """Problem's dtype"""
+
     def f(self, x, u):
         """
         Function ``f`` at position ``x``.
@@ -133,13 +136,13 @@ class FirstOrderConverter(object):
             i += 1
 
     def f(self, x, y):
-        dy = N.empty([self.mstar], N.float64)
+        dy = N.empty([self.mstar], self.problem.dtype)
         dy[self.f_map] = self.problem.f(x, y)
         dy[self.y_map] = y[self.y_map + 1]
         return dy
 
     def df(self, x, y):
-        ddy = N.zeros([self.mstar, self.mstar], N.float64)
+        ddy = N.zeros([self.mstar, self.mstar], self.problem.dtype)
         ddy[self.f_map, :] = self.problem.df(x, y)
         ddy[self.y_map, self.y_map + 1] = 1
         return ddy
@@ -237,11 +240,27 @@ class Problem2(TwoPointBVP):
     def exact_solution(self, x):
         X = N.r_[self.B, self.C*N.linalg.expm(self.A)]
         b = N.r_[self.a_rhs, self.b_rhs]
-        y = N.zeros((len(x), 3), N.float_)
+        y = N.zeros((len(x), 3), self.dtype)
         for i, xx in enumerate(N.asarray(x)):
             sol = N.dot(N.linalg.expm(self.A * xx), N.linalg.solve(X, b))
             y[i,:] = N.asarray(sol).ravel()
         return y
+
+class ComplexProblem2(Problem2):
+    """
+    Complex version of Problem2
+
+    """
+
+    A = N.mat('0 1j 2; 1 0 2+3j; 2 3+1j 4')
+    B = N.mat('1 2j 0.5+3j')
+    C = N.mat('4 1+5j 6; 7 8j 9')
+
+    a_rhs = N.mat('1')
+    b_rhs = N.mat('2j; 3')
+
+    is_complex = True
+    dtype = N.complex_
 
 class Problem3(TwoPointBVP):
     """
@@ -913,6 +932,7 @@ class Problem9(TwoPointBVP):
         y, yp = N.special.mathieu_cem(m, self.q, 180/N.pi * x)
         a = N.special.mathieu_a(m, self.q)
         return N.array([y/scale, yp/scale, N.ones(x.shape)*a]).T
+
 
 ###############################################################################
 

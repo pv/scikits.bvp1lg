@@ -42,8 +42,10 @@ class ComplexAdapter(object):
               d^n2 Im z2 = Im[ rhs2 ],
               ... ]
         """
+        x = np.atleast_1d(x)
         c_z = self._unpack_z(z)
         c_f = self.c_fsub(x, c_z)
+        c_f = np.asarray(c_f)
 
         m = c_f.shape[0]
 
@@ -60,8 +62,10 @@ class ComplexAdapter(object):
         This assumes that the rhs functions are complex analytic.
 
         """
+        x = np.atleast_1d(x)
         c_z = self._unpack_z(z)
         c_df = self.c_dfsub(x, c_z)
+        c_df = np.asarray(c_df)
 
         m = c_z.shape[0]
 
@@ -69,8 +73,8 @@ class ComplexAdapter(object):
                         dtype=np.float_)
 
         r_df[:m,:m] = c_df.real
-        r_df[m:,m:] = -c_df.imag
-        r_df[:m,:m] = c_df.imag
+        r_df[:m,m:] = -c_df.imag
+        r_df[m:,:m] = c_df.imag
         r_df[m:,m:] = c_df.real
 
         return r_df
@@ -100,6 +104,7 @@ class ComplexAdapter(object):
         #
         c_z = self._unpack_z(z[:,0::2])
         c_g = self.c_gsub(c_z)
+        c_g = np.asarray(c_g)
 
         r_g = np.empty((2*c_g.shape[0],), dtype=np.float_)
         r_g[0::2] = c_g.real
@@ -121,12 +126,12 @@ class ComplexAdapter(object):
         # to avoid needing to call c_gsub twice.
         #
         c_z = self._unpack_z(z[:,0::2])
-        c_g = self.c_gsub(c_z)
+        c_dg = self.c_dgsub(c_z)
+        c_dg = np.asarray(c_dg)
 
         m = c_z.shape[0]
 
-        r_dg = np.empty((2*c_dg.shape[0], 2*c_dg.shape[1]) + c_dg.shape[2:],
-                        dtype=np.float_)
+        r_dg = np.empty((2*c_dg.shape[0], 2*c_dg.shape[1]), dtype=np.float_)
 
         r_dg[0::2,:m] = c_dg.real
         r_dg[0::2,m:] = -c_dg.imag

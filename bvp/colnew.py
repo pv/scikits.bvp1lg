@@ -63,6 +63,7 @@ import scipy as _N
 import _colnew
 import jacobian as _jacobian
 import error as _error
+import complex_adapter as _complex_adapter
 
 ## Solution
 
@@ -150,6 +151,7 @@ def solve(boundary_points,
           problem_regularity=REGULAR,
           maximum_mesh_size=100,
           vectorized=True,
+          is_complex=False,
           ):
     r"""Solve a multi-point boundary value problem for a system of ODEs.
 
@@ -276,6 +278,11 @@ def solve(boundary_points,
       - `maximum_mesh_size`:
         Maximum number of points to allow in the mesh.
 
+      - `is_complex`:
+        Whether the problem is complex-valued.
+
+        .. note:: The equation must be analytical in the unknown variables.
+
     :returns:
         `Solution` object representing the solution.
 
@@ -308,7 +315,8 @@ def solve(boundary_points,
                              extra_fixed_points,
                              problem_regularity,
                              maximum_mesh_size,
-                             vectorized)
+                             vectorized,
+                             is_complex)
     finally:
         _colnew_exit()
 
@@ -327,7 +335,24 @@ def _colnew_solve(boundary_points,
                   extra_fixed_points,
                   problem_regularity,
                   maximum_mesh_size,
-                  vectorized):
+                  vectorized,
+                  is_complex):
+
+    ## Handle complex equations
+    if is_complex:
+        c_adapter = _complex_adapter.ComplexAdapter(boundary_points, degrees,
+                                                    fsub, gsub, dfsub, dgsub,
+                                                    tolerances)
+
+        boundary_points = c_adapter.boundary_points
+        degrees = c_adapter.degrees
+        fsub = c_adapter.fsub
+        gsub = c_adapter.gsub
+        dfsub = c_adapter.dfsub
+        dgsub = c_adapter.dgsub
+        tolerances = c_adapter.tolerances
+
+    
     ## Check degrees
 
     ncomp = len(degrees)
@@ -576,9 +601,15 @@ def _colnew_solve(boundary_points,
     else:
         raise RuntimeError("Unknown error in COLNEW")
 
-    ## Return the result
+    ## Form the result
     
-    return Solution(ispace, fspace)
+    solution = Solution(ispace, fspace)
+
+    ## Return
+    if is_complex:
+        return _complex_adapter.ComplexSolution(solution)
+    else:
+        return solution
 
 
 _colnew_stack = []

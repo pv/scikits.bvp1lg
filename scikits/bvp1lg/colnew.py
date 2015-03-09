@@ -1,62 +1,78 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt.
-"""
+r"""
+colnew
+======
+
 Solve multi-point boundary value problems for ODEs
-
-
-Contents
-========
 
 - `solve`: Solve linear and non-linear problems
 - `Solution`: Returned by `solve` to represent the solution
 - `check_jacobians`: Check ``dfsub`` and ``dgsub`` for correctness
 
-See also: bvp.examples
-
+.. seealso:: `scikits.bvp1lg.examples`
 
 Description
-===========
+-----------
 
-This module uses a modified version of COLNEW [1], a mature solver for
+This module uses a modified version of COLNEW [CN]_, a mature solver for
 multi-point boundary value problems for ODEs.
 
 COLNEW handles only problems with separated boundary conditions.
 Non-separated problems can be converted to separated form for example
-by adding dummy variables::
+by adding dummy variables:
+
+.. math::
 
     u''(x) = f(x, u)
 
     u(0) + u(1) = 1
-    u(0) * u(1) = 2
+
+    u(0) u(1) = 2
 
 can be transformed to
 
+.. math::
+
     u''(x) = f(x, u)
+
     v'(x) = 0
 
     v(0) - u(0) = 0
+
     v(1) + u(1) = 1
-    v(1) * u(1) = 2
+
+    v(1) u(1) = 2
 
 Similarly, problems with constant parameters
 
-    u''(x) + (a + 2 cos(2 x)) u(x) = 0
+.. math::
 
-    u'(0) = 0, u(0) = 1, u'(pi) = 0
+    u''(x) + (a + 2 \cos(2 x)) u(x) = 0
+
+    u'(0) = 0, u(0) = 1, u'(\pi) = 0
 
 can be transformed to
 
-    u''(x) + (a(x) + 2 cos(2 x)) u(x) = 0
+.. math::
+
+    u''(x) + (a(x) + 2 \cos(2 x)) u(x) = 0
+
     a'(x) = 0
 
-    u'(0) = 0, u(0) = 1, u'(pi) = 0
+    u'(0) = 0, u(0) = 1, u'(\pi) = 0
 
 This may make the problem non-linear.
 
+References
+----------
 
-[1] U. Ascher and G. Bader (and J. Christiansen and R. D. Russell).
-    SIAM J. Sci. Comput. 8, 483 (1987).
-    http://www.netlib.org/ode/colnew.f
+.. [CN] U. Ascher and G. Bader (and J. Christiansen and R. D. Russell).
+        SIAM J. Sci. Comput. 8, 483 (1987).
+        http://www.netlib.org/ode/colnew.f
+
+Module contents
+---------------
 """
 from __future__ import absolute_import, division, print_function
 
@@ -85,9 +101,11 @@ class Solution(object):
     def __call__(self, x):
         """Evaluate the solution at given points.
 
-        :returns:
+        Returns
+        -------
+        sol : ndarray
             The solution vector, as::
-            
+
                 [u_1(x), u_1'(x), ..., u_1^{m_1 - 1}(x), u_2(x), ...
                  u_{ncomp}^{m_{ncomp} - 1}]
 
@@ -102,7 +120,9 @@ class Solution(object):
     def get_mesh(self):
         """Get the mesh points on which the solution is specified
 
-        :rtype: array(self.nmesh)
+        Returns
+        -------
+        mesh : ndarray of float, shape (nmesh,)
         """
         return self.fspace[0:self.nmesh]
 
@@ -112,7 +132,10 @@ class Solution(object):
     def get_mesh_values(self):
         """Get the solution at the mesh points
 
-        :returns: self(self.mesh)
+        Returns
+        -------
+        values : ndarray
+            ``self(self.mesh)``
         """
         return self(self.mesh)
 
@@ -154,7 +177,8 @@ def solve(boundary_points,
           vectorized=True,
           is_complex=False,
           ):
-    r"""Solve a multi-point boundary value problem for a system of ODEs.
+    r"""
+    Solve a multi-point boundary value problem for a system of ODEs.
 
     The mixed-order system is::
 
@@ -163,140 +187,137 @@ def solve(boundary_points,
 
         1 <= min(degrees) <= max(degrees) <= 4
 
-        u_i^{(m_i)}(x) = f_i(x, z(u(x)))       i = 0, ..., ncomp-1
-                                               left <= x <= right
-        
-        g_j(zeta_j, z(u(zeta_j))) = 0          j = 0, ..., mstar-1
+        u_i^{(m_i)}(x) = f_i(x, z(x))       i = 0, ..., ncomp-1
+                                            left <= x <= right
+
+        g_j(zeta_j, z(zeta_j)) = 0          j = 0, ..., mstar-1
 
     where ``u(x)`` is the solution vector at position ``x`` and
     ``zeta = boundary_points`` specifies the boundary points.
 
-    The solution vector is numerically represented by ``z``-vector::
+    The solution vector is represented by ``z``-vector::
 
         z = [u_1, u_1', ..., u_1^{m_1-1}, u_2, u_2', ..., u_{mstar-1}]
 
     It is of shape (mstar,) and contains derivatives of orders < m_i.
 
-    :note:
-        Colnew has the hard-coded limits::
+    .. note::
+
+        Colnew has the hard-coded problem size limits::
             ncomp <= 256
             mstar <= 512
 
-    :Parameters:
-    
-      - `degrees`:
+    Parameters
+    ----------
+    boundary_points
+        Points where i:th boundary condition is given, as a (mstar,) array,
+        with left <= boundary_points[i] <= right for all i.
+        It must be sorted in increasing order.
+    degrees : list of integers
         Degree of i:th equation is ``degree[i]``.
         It is required that ``1 <= degree[i] <= 4``.
-        
-      - `vectorized`:
-        Are the functions `fsub`, `dfsub` and `initial_guess` vectorized?
-        
-      - `fsub`:
+    fsub : callable
         Function ``f``, given as ``def fsub(x, z): return f``, where::
-            x[j]    = x_j                             (nx,)
-            z[i, j] = z_i(u(x_j))                     (mstar, nx)
-            f[i, j] = f_i(x_j, z(u(x_j)))             (ncomp, nx)
-        If not vectorized, the last dimension is omitted for all variables.
-        
-      - `dfsub`:
-        Jacobian of ``f``, given as ``def dfsub(x, z): return df``, where::
-            x[j]        = x_j                         (nx,)
-            z[j, k]     = z_j(u(x_k))                 (mstar, nx)
-            df[i, j, k] = (d f_i / d z_j)(x_k)        (ncomp, mstar, nx)
-        If not vectorized, the last dimension is omitted for all variables.
 
-        If None, a simple difference approximation is used.
-        
-      - `gsub`:
+            x[j]    = x_j                             (nx,)
+            z[i, k] = z_i(x[k])                       (mstar, nx)
+            f[i, k] = f_i(x[k], z[:,k])               (ncomp, nx)
+
+        If not vectorized, the last dimension is omitted for all variables.
+        The function must be local: f[:,k] can only depend on z[:,k].
+    gsub : callable
         Function ``g``, given as ``def gsub(z): return g``, where::
+
             z[i, j] = z_i(u(zeta_j))                  (mstar, mstar)
             g[i]    = g_i(zeta_i, z(u(zeta_i)))       (mstar,)
 
         Boundary conditions must be separated: g[:, j] may depend only
         on z[:, j].
-        
-      - `dgsub`:
+    dfsub : callable, optional
+        Jacobian of ``f``, given as ``def dfsub(x, z): return df``, where::
+
+            x[j]        = x_j                         (nx,)
+            z[j, k]     = z_j(x_k)                    (mstar, nx)
+            df[i, j, k] = d f[i,k] / d z[j,k]         (ncomp, mstar, nx)
+
+        If not vectorized, the last dimension is omitted for all variables.
+        If None, a simple difference approximation is used.
+    dgsub : callable, optional
         Jacobian of ``g``, given as ``def dgsub(z): return dg``, where::
+
             z[i, j]  = z_i(u(zeta_j))                 (mstar, mstar)
             dg[i, j] = (d g_i / d z_j)(zeta_i, z)     (mstar, mstar)
 
         If None, a simple difference approximation is used.
-        
-      - `left`:
+    left : float, optional
         The left boundary point. If None, ``left = min(boundary_points)``.
-      
-      - `right`:
+    right : float, optional
         The right boundary point. If None, ``right = max(boundary_points)``.
-      
-      - `boundary_points`:
-        Points where i:th boundary condition is given, as a (mstar,) array,
-        with left <= boundary_points[i] <= right for all i.
-        It must be sorted in increasing order.
-        
-      - `is_linear`:
+    vectorized : bool, optional
+        Are the functions `fsub`, `dfsub` and `initial_guess` vectorized?
+    is_linear : bool, optional
         Is the system of equations linear?
-        
-      - `initial_guess`:
+    initial_guess : callable or Solution, optional
         Initial guess for continuation.
         Can be
-            1. Callable ``def guess(x): return z, dm``, where::
-                   x[j]     = x_j                     (nx,)
-                   z[i, j]  = z_i(u(x_j))             (mstar, nx)
-                   dm[i, k] = u_i^{m_i}(x_j)          (ncomp, nx)
-               If not vectorized, the last dimension is omitted for all
-               variables.
-            2. Previously obtained `Solution`
-            3. None, indicating that a default initial guess is to be used.
-            
-      - `tolerances`:
+
+        1. Callable ``def guess(x): return z, dm``, where::
+
+              x[j]     = x_j                     (nx,)
+              z[i, j]  = z_i(u(x_j))             (mstar, nx)
+              dm[i, k] = u_i^{m_i}(x_j)          (ncomp, nx)
+
+           If not vectorized, the last dimension is omitted for all
+           variables.
+        2. Previously obtained `Solution`
+        3. None, indicating that a default initial guess is to be used.
+
+    tolerances : list of float, optional
         Tolerances for components of the solution.
         ``tolerance[i]`` gives the tolerance for i:th component of z-vector.
         If ``tolerance[i] == 0``, then no tolerance is imposed for that
         component.
-        
-      - `adaptive_mesh_selection`:
+    adaptive_mesh_selection : bool, optional
         Use adaptive mesh selection. If disabled, trivial mesh refinement
         is used -- in this case the initial mesh to use must be given in
         ``initial_mesh``.
-        
-      - `verbosity`:
+    verbosity : int, optional
         Amount of messages to show. 0 means silent, 1 selected printout,
         and 2 diagnostic printout.
-        
-      - `collocation_points`:
+    collocation_points : int, optional
         Number of collocation points in each subinterval, or None for
         a sensible default. It is required that
         ``max(degrees) <= collocation_points <= 7``.
-        
-      - `extra_fixed_points`:
+    extra_fixed_points : list of float, optional
         Points to fix in the mesh, in addition to boundary_points.
         (E.g. known boundary layers etc.)
-        
-      - `problem_regularity`:
+    problem_regularity : int, optional
         How regular the problem is. Can be REGULAR (0) or SENSITIVE (1).
         Usually, SENSITIVE should not be needed.
-        
-      - `maximum_mesh_size`:
+    maximum_mesh_size : int, optional
         Maximum number of points to allow in the mesh.
-
-      - `is_complex`:
+    is_complex : bool, optional
         Whether the problem is complex-valued.
+        The equation must be analytical in the unknown variables.
 
-        .. note:: The equation must be analytical in the unknown variables.
+    Returns
+    -------
+    sol : Solution
+        Object representing the solution.
 
-    :returns:
-        `Solution` object representing the solution.
-
-    :raise ValueError:
+    Raises
+    ------
+    ValueError
         Invalid input
-    :raise bvp.NoConvergence:
+    scikits.bvp1lg.NoConvergence
         Numerical convergence problems
-    :raise bvp.TooManySubintervals:
+    scikits.bvp1lg.TooManySubintervals
         ``maximum_mesh_size`` too small to satisfy tolerances
-    :raise bvp.SingularCollocationMatrix:
+    scikits.bvp1lg.SingularCollocationMatrix
         Singular collocation matrix (check your jacobians)
-    :raise SystemError:
+    SystemError
         Invalid output from user routines. (FIXME: these should be fixed)
+
     """
 
     try:
@@ -353,7 +374,7 @@ def _colnew_solve(boundary_points,
         dgsub = c_adapter.dgsub
         tolerances = c_adapter.tolerances
 
-    
+
     ## Check degrees
 
     ncomp = len(degrees)
@@ -377,10 +398,10 @@ def _colnew_solve(boundary_points,
         collocation_points = 0
     elif collocation_points < max(degrees) or collocation_points > 7:
         raise ValueError("Invalid number of collocation points")
-    
+
     if extra_fixed_points == None:
         extra_fixed_points = []
-    
+
     if tolerances == None:
         tolerances = np.zeros([mstar])
 
@@ -389,7 +410,7 @@ def _colnew_solve(boundary_points,
 
     if right == None:
         right = max(boundary_points)
-    
+
     ## Calculate needed workspace size
 
     k = int(collocation_points)
@@ -403,18 +424,18 @@ def _colnew_solve(boundary_points,
     nfspace = maximum_mesh_size * nsizef
 
     ## Allocate work space
-    
+
     ispace = np.empty([nispace], np.int32)
     fspace = np.empty([nfspace], np.float64)
 
     ## Boundary points
-    
+
     if len(boundary_points) != mstar:
         raise ValueError("Invalid number of boundary points")
 
     zeta = np.asarray(boundary_points, np.float64)
     zeta.sort()
-    
+
     if not np.alltrue(zeta == boundary_points):
         raise ValueError("Invalid ordering of boundary points")
 
@@ -422,7 +443,7 @@ def _colnew_solve(boundary_points,
         raise ValueError("Some boundary points outside range [left, right]")
 
     ## Fixed points in the mesh
-    
+
     fixpnt = list(boundary_points) + list(extra_fixed_points)
     fixpnt.sort()
     fixpnt = list(filter(lambda x: x > left and x < right, fixpnt))
@@ -444,9 +465,9 @@ def _colnew_solve(boundary_points,
     ltol = np.where(tolerances > 0)[0]
     tol = tolerances[ltol]
     ltol += 1 # Fortran-style indexing
-    
+
     ## Parameters to COLNEW
-    
+
     ipar = np.array([
         1 - int(is_linear),  # is the problem nonlinear?
         collocation_points,  # no. collocation points per subinterval
@@ -499,14 +520,14 @@ def _colnew_solve(boundary_points,
         raise ValueError("Unknown initial_guess")
 
     ## Initial mesh
-    
+
     try:
         ipar[2] = int(initial_mesh) # number of points only
         ipar[7] = 0
         initial_mesh = None
     except (TypeError, ValueError):
         pass
-                    
+
     if initial_mesh != None:
         fspace[:len(initial_mesh)] = initial_mesh
         ipar[2] = len(initial_mesh) - 1
@@ -573,7 +594,7 @@ def _colnew_solve(boundary_points,
 
     if dfsub == None:
         vectorized_df = numerical_df
-    
+
     ## Call COLNEW
 
     iflag = _colnew.colnew(
@@ -603,7 +624,7 @@ def _colnew_solve(boundary_points,
         raise RuntimeError("Unknown error in COLNEW")
 
     ## Form the result
-    
+
     solution = Solution(ispace, fspace)
 
     ## Return
@@ -622,11 +643,11 @@ _colnew_commons = [_colnew.colapr, _colnew.colbas, _colnew.colest,
 def _colnew_enter():
     """
     Push old COLNEW data to stack.
-    
+
     Colnew itself is written in Fortran using COMMON blocks,
     and so it is not reentrant. We make it reentrant by manually
     pushing and popping the COMMON contents on and off a stack.
-    
+
     """
     global _colnew_stack, _colnew_depth, _colnew_commons
 
@@ -662,13 +683,17 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
     """
     Check that the Jacobian functions match numerically evaluated derivatives.
 
-    :Parameters:
-      - `degrees`, `boundary_points`, `fsub`, `dfsub`, `gsub`, `dsub`,
-        `vectorized`: As for `solve`.
-      - Others: passed on to `jacobian.check_jacobian`
+    Parameters
+    ----------
+    degrees, boundary_points, fsub, dfsub, gsub, dsub, vectorized
+        As for `solve`.
+    kw
+        Passed on to `jacobian.check_jacobian`
 
-    :raises ValueError:
-      If the jacobians seem to be invalid.
+    Raises
+    ------
+    ValueError
+        If the jacobians seem to be invalid.
     """
 
     xmin = min(boundary_points)
@@ -705,7 +730,7 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
     # u(zeta_i) may appear multiple times in the vector passed to gsub
     # and dgsub.
     #
-    
+
     indep = list(np.unique(boundary_points))
     indep_map = [indep.index(p) for p in boundary_points]
 
@@ -715,11 +740,11 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
         for i, j in enumerate(indep_map):
             u[:,i] = z[:,j]
         return u
-    
+
     def _gsub(z):
         g = gsub(_get_u(z))
         return g
-        
+
     def _dgsub(z):
         dg = dgsub(_get_u(z))
         d = np.zeros([mstar, mstar, len(indep)])
@@ -727,6 +752,6 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
             d[i,:,j] = dg[i, :]
         d.shape = (mstar, mstar*len(indep))
         return d
-    
+
     if not _jacobian.check_jacobian(mstar*len(indep), _gsub, _dgsub, **kw):
         raise ValueError("dgsub may be invalid")

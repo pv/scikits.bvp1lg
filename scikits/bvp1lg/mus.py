@@ -1,24 +1,22 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt.
 """
-Solve two-point boundary value problems for ODEs
+mus
+===
 
-Contents
-========
+Solve two-point boundary value problems for ODEs
 
 - `solve_linear`: Solve linear problems
 - `solve_nonlinear`: Solve non-linear problems
 
 Description
-===========
+-----------
 
-This module uses the multiple shooting code MUS [1] for solving
+This module uses the multiple shooting code MUS [MS]_ for solving
 boundary-value problems.
 
-[1] R. M. M. Mattheij, G. W. M. Staarink.
-    EUT Report 92-WSK-01 (1992).
+.. warning::
 
-:warning:
     For some reason, this code can be slow for certain problems.
     This may be due to that
     
@@ -29,6 +27,15 @@ boundary-value problems.
     
     I have not yet figured out what the problem is, so you may be
     better off using the `colnew` package.
+
+References
+----------
+
+.. [MS] R. M. M. Mattheij, G. W. M. Staarink.
+        EUT Report 92-WSK-01 (1992).
+
+Module contents
+---------------
 """
 from __future__ import absolute_import, division, print_function
 

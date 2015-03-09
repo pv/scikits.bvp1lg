@@ -1,20 +1,27 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt.
 """
+jacobian
+========
+
 Numerical approximations to Jacobians of functions
+
+Module contents
+---------------
 """
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
 def jacobian(f, u, eps=1e-6):
-    """Evaluate partial derivatives of f(u) numerically.
+    r"""Evaluate partial derivatives of f(u) numerically.
 
-    :note:
-        This routine is currently naive and could be improved.
+    .. note:: This routine is currently naive and could be improved.
 
-    :returns:
-        (*f.shape, *u.shape) array ``df``, where df[i,j] ~= (d f_i / u_j)(u)
+    Returns
+    -------
+    df : ndarray
+        (\*f.shape, \*u.shape) array ``df``, where df[i,j] ~= (d f_i / u_j)(u)
     """
     f0 = np.asarray(f(u)) # asarray: because of matrices
 
@@ -42,21 +49,31 @@ def check_jacobian(N, f, df, bounds=None,
     This is done by computing (f(u + eps*e_k) - f(u))/eps and checking
     its difference from ``df(u)`` in norm-2.
 
-    :note:
-        This routine is currently naive and could be improved.
+    .. note:: This routine is currently naive and could be improved.
 
-    :Parameters:
-      - `N` : number of variables
-      - `f`: f(u) should return array(N) for u=array(N)
-      - `df`: df(u) should return array(N,N) for u=array(N)
-      - `bounds`: bounds for elements of u, as [(lower[0], upper[0]), ...]
-      - `eps`: epsilon to use for evaluating the partial derivatives
-      - `rtol`: relative tolerance to allow
-      - `atol`: absolute tolerance to allow
-      - `times`: how many random checks to perform
+    Parameters
+    ----------
+    N
+        number of variables
+    f
+        f(u) should return array(N) for u=array(N)
+    df
+        df(u) should return array(N,N) for u=array(N)
+    bounds
+        bounds for elements of u, as [(lower[0], upper[0]), ...]
+    eps
+        epsilon to use for evaluating the partial derivatives
+    rtol
+        relative tolerance to allow
+    atol
+        absolute tolerance to allow
+    times
+        how many random checks to perform
 
-    :returns:
-      True if ``df`` passes the test, False otherwise.
+    Returns
+    -------
+    ok : bool
+        True if ``df`` passes the test, False otherwise.
     """
 
     ## Check input & set defaults

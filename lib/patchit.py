@@ -61,6 +61,8 @@ class LineEnumerator(object):
         self.line_no, self.line = next(self.lines_enum)
         return self.line
 
+    __next__ = next
+    
 
 class Hunk(object):
     """Collection of operations concerning an isolated file chunk."""

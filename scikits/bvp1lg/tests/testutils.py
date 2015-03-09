@@ -1,10 +1,14 @@
 # Author: Pauli Virtanen <pav@iki.fi>, 2006.
 # All rights reserved. See LICENSE.txt.
 
+from __future__ import division, absolute_import, print_function
+
 from numpy.testing import *
-from unittest import TestCase
 import doctest
 import numpy as np
+
+__all__ = ['curves_close', 'doctest']
+
 
 def curves_close(x, y1, xtol1, ytol1,
                     y2, xtol2, ytol2):

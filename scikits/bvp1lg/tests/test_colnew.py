@@ -3,6 +3,7 @@
 """
 Tests for the COLNEW wrappers.
 """
+from __future__ import division, absolute_import, print_function
 
 from numpy.testing import *
 import numpy as np
@@ -74,9 +75,9 @@ def solve_with_colnew(problem, numerical_jacobians=False,
 
 ###############################################################################
 
-class test_colnew(TestCase):
+class TestColnew(object):
     def test_problem_1(self, num_jac=False):
-        """Solve problem #1 and compare to exact solution"""
+        # Solve problem #1 and compare to exact solution
         problem = Problem1()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 100)
@@ -84,7 +85,7 @@ class test_colnew(TestCase):
                           rtol=1e-5)
 
     def test_problem_2(self, num_jac=False):
-        """Solve problem #2 and compare to exact solution"""
+        # Solve problem #2 and compare to exact solution
         problem = Problem2()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 100)
@@ -92,7 +93,7 @@ class test_colnew(TestCase):
                           rtol=1e-3, atol=1e-6)
 
     def test_complex_problem_2(self, num_jac=False):
-        """Solve problem (complex-valued) #2 and compare to exact solution"""
+        # Solve problem (complex-valued) #2 and compare to exact solution
         problem = ComplexProblem2()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac,
                                      is_complex=True)
@@ -101,7 +102,7 @@ class test_colnew(TestCase):
                           rtol=1e-3, atol=1e-6)
 
     def test_problem_3(self, num_jac=False):
-        """Solve problem #3 and compare to exact solution"""
+        # Solve problem #3 and compare to exact solution
         problem = Problem3()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 100)
@@ -109,7 +110,7 @@ class test_colnew(TestCase):
                           rtol=1e-5)
 
     def test_problem_5(self, num_jac=False):
-        """Solve problem #5 and compare to exact solution"""
+        # Solve problem #5 and compare to exact solution
         problem = Problem5()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 100)
@@ -119,7 +120,7 @@ class test_colnew(TestCase):
         # interpolated
 
     def test_problem_6(self, num_jac=False):
-        """Solve problem #6 and compare to exact solution"""
+        # Solve problem #6 and compare to exact solution
         problem = Problem6()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 100)
@@ -127,8 +128,8 @@ class test_colnew(TestCase):
                           rtol=1e-5)
 
     def test_problem_7(self, num_jac=False):
-        """Solve problem #7 for two different initial guesses
-        and compare to known approximate solutions"""
+        # Solve problem #7 for two different initial guesses
+        # and compare to known approximate solutions
         problem = Problem7()
 
         tol = [1e-4]*4
@@ -158,8 +159,8 @@ class test_colnew(TestCase):
                             solution2(x)[:,0], 0, 0)
 
     def test_problem_8(self, num_jac=False):
-        """Solve problem #8 with simple continuation
-        and compare to known approximate solutions"""
+        # Solve problem #8 with simple continuation
+        # and compare to known approximate solutions
         problem = Problem8()
         solution = problem.guess
         for c in problem.continuation:
@@ -179,7 +180,7 @@ class test_colnew(TestCase):
                             solution(xh)[:,2], 0, 0)
 
     def test_problem_9(self, num_jac=False):
-        """Solve problem #9"""
+        # Solve problem #9
         problem = Problem9()
         solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
         x = np.linspace(problem.a, problem.b, 10)
@@ -187,7 +188,7 @@ class test_colnew(TestCase):
                           rtol=1e-3, atol=1e-6)
 
     def test_continuation(self, num_jac=False):
-        """Solve problem #3 for multiple values of C using continuation"""
+        # Solve problem #3 for multiple values of C using continuation
         problem = Problem3()
         x = np.linspace(problem.a, problem.b, 501)
 
@@ -215,7 +216,7 @@ class test_colnew(TestCase):
                               rtol=1e-1)
 
     def test_initial_mesh(self, num_jac=False):
-        """Solve problem #3 with a specified initial mesh"""
+        # Solve problem #3 with a specified initial mesh
         problem = Problem3()
         x = np.linspace(0, 1, 13)
         solution = solve_with_colnew(problem, initial_mesh=x,
@@ -225,15 +226,15 @@ class test_colnew(TestCase):
                           rtol=1e-5)
 
     def test_fixed_mesh(self, num_jac=False):
-        """Solve problem #3 without adaptive mesh selection"""
+        # Solve problem #3 without adaptive mesh selection
         problem = Problem3()
         x = np.linspace(0, 1, 20)
 
         # Doesn't work without a specified initial mesh
-        self.assertRaises(ValueError,
-                          solve_with_colnew,
-                          problem, adaptive_mesh_selection=False,
-                          numerical_jacobians=num_jac)
+        assert_raises(ValueError,
+                      solve_with_colnew,
+                      problem, adaptive_mesh_selection=False,
+                      numerical_jacobians=num_jac)
 
         # This works
         solution = solve_with_colnew(problem, initial_mesh=x,
@@ -245,7 +246,7 @@ class test_colnew(TestCase):
         assert np.allclose(mesh_delta, mesh_delta[0], rtol=1e-9, atol=1e-9)
 
     def test_extra_fixed_points(self, num_jac=False):
-        """Solve problem #3, specifying additional fixed points"""
+        # Solve problem #3, specifying additional fixed points
         problem = Problem3()
         solution = solve_with_colnew(problem,
                                      extra_fixed_points=[0.12345, 0.54321],
@@ -253,13 +254,13 @@ class test_colnew(TestCase):
         assert 0.12345 in solution.mesh and 0.54321 in solution.mesh
 
     def test_collocation_points(self, num_jac=False):
-        """Solve problem #3 with different numbers of collocation points"""
+        # Solve problem #3 with different numbers of collocation points
         problem = Problem3()
 
 
-        self.assertRaises(ValueError,
-                          solve_with_colnew, problem, collocation_points=1,
-                          numerical_jacobians=num_jac)
+        assert_raises(ValueError,
+                      solve_with_colnew, problem, collocation_points=1,
+                      numerical_jacobians=num_jac)
         
         x = np.linspace(problem.a, problem.b, 100)
         solution = solve_with_colnew(problem, collocation_points=2,
@@ -281,12 +282,12 @@ class test_colnew(TestCase):
                                      numerical_jacobians=num_jac)
         assert np.allclose(problem.exact_solution(x),solution(x)[:,0],rtol=1e-5)
 
-        self.assertRaises(ValueError,
-                          solve_with_colnew, problem, collocation_points=8,
-                          numerical_jacobians=num_jac)
+        assert_raises(ValueError,
+                      solve_with_colnew, problem, collocation_points=8,
+                      numerical_jacobians=num_jac)
 
     def test_tolerances(self, num_jac=False):
-        """Solve problem #3 with different tolerances"""
+        # Solve problem #3 with different tolerances
         problem = Problem3()
         x = np.linspace(0, 1, 20)
 
@@ -305,9 +306,9 @@ class test_colnew(TestCase):
                           rtol=1e-5)
 
         # Invalid number of tolerances
-        self.assertRaises(ValueError,
-                          solve_with_colnew, problem, tolerances=[1, 2, 3],
-                          numerical_jacobians=num_jac)
+        assert_raises(ValueError,
+                      solve_with_colnew, problem, tolerances=[1, 2, 3],
+                      numerical_jacobians=num_jac)
 
     def test_problem_jacobians(self):
         solve_with_colnew(Problem1(), check_jacobian_only=True)
@@ -347,34 +348,27 @@ class test_colnew(TestCase):
 
 ###############################################################################
 
-class test_colnew_numerical_jacobians(test_colnew):
-    """Same as test_colnew, but with numerically approximated Jacobians"""
+class TestColnewNumericalJacobians(TestColnew):
+    # Same as test_colnew, but with numerically approximated Jacobians
     pass
 
 def add_jac_func(cls, v):
-    """Needed for making the lambda a closure"""
+    # Needed for making the lambda a closure
     func = lambda self: v(self, True)
-    func.__doc__ = "num_jac: " + v.__doc__
     func.__name__ = v.__name__
-    setattr(test_colnew_numerical_jacobians, func.__name__, func)
+    setattr(TestColnewNumericalJacobians, func.__name__, func)
 
 def ignored_check(self):
     return True
 
-for name, v in inspect.getmembers(test_colnew):
-    if name.startswith('check_'):
+for name, v in inspect.getmembers(TestColnewNumericalJacobians):
+    if name.startswith('test_'):
         argspec = inspect.getargspec(v)
         if 'num_jac' in argspec[0] or 'numerical_jacobians' in argspec[0]:
-            add_jac_func(test_colnew_numerical_jacobians, v)
-        elif name.startswith('check_'):
-            setattr(test_colnew_numerical_jacobians, name, ignored_check)
+            add_jac_func(TestColnewNumericalJacobians, v)
+        else:
+            setattr(TestColnewNumericalJacobians, name, ignored_check)
+    del v
 
-class test_doc(TestCase):
-    def test_all(self):
-        assert doctest.testmod(colnew, verbose=0)[0] == 0
-
-###############################################################################
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()
+def test_doctests():
+    assert doctest.testmod(colnew, verbose=0)[0] == 0

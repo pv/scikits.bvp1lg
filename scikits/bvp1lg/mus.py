@@ -30,11 +30,13 @@ boundary-value problems.
     I have not yet figured out what the problem is, so you may be
     better off using the `colnew` package.
 """
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
-import _mus
+from . import _mus
 import warnings as _warnings
 
-from error import *
+from .error import *
 
 ###############################################################################
 

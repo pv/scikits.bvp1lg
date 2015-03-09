@@ -3,6 +3,7 @@
 """
 Tests for the partial derivative routines
 """
+from __future__ import division, absolute_import, print_function
 
 from numpy.testing import *
 import numpy as np
@@ -13,7 +14,7 @@ import scikits.bvp1lg.colnew as colnew
 from testutils import *
 import test_problems
 
-class test_jacobian(TestCase):
+class TestJacobian(object):
     def test_problems(self):
         for problem in [test_problems.Problem1(),
                         test_problems.Problem2(),
@@ -44,7 +45,7 @@ class test_jacobian(TestCase):
                 lambda u: problem.dg(0*u, u)[1])
 
     def test_solving(self):
-        """Solve problem #3 with numerical partial derivatives"""
+        # Solve problem #3 with numerical partial derivatives
         problem = test_problems.Problem3()
 
         def dfsub(x, z):
@@ -74,7 +75,7 @@ class test_jacobian(TestCase):
                           rtol=1e-5)
 
     def test_solving_2(self):
-        """Solve problem #3 with numerical partial derivatives"""
+        # Solve problem #3 with numerical partial derivatives
         problem = test_problems.Problem3()
 
         def gsub(z):
@@ -90,10 +91,5 @@ class test_jacobian(TestCase):
         assert np.allclose(problem.exact_solution(x), solution(x)[:,0],
                           rtol=1e-5)
         
-class test_doc(TestCase):
-    def test_all(self):
-        assert doctest.testmod(jacobian, verbose=0)[0] == 0
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()
+def test_doctest():
+    assert doctest.testmod(jacobian, verbose=0)[0] == 0

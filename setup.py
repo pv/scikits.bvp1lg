@@ -57,14 +57,14 @@ def download_and_patch(url, patch, dest):
     if patch is None:
         shutil.copyfile(orig_dst, dest)
     else:
-        with open(patch, 'rb') as f:
+        with open(patch, 'r') as f:
             patch_set = patchit.PatchSet.from_stream(f)
 
-        with open(orig_dst, 'rb') as f:
+        with open(orig_dst, 'r') as f:
             lines = [x.rstrip("\r\n") for x in f.readlines()]
 
         lines = list(patch_set[0].merge(lines))
-        with open(dest, 'wb') as f:
+        with open(dest, 'w') as f:
             f.writelines("\n".join(lines))
 
 

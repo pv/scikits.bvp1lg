@@ -5,9 +5,10 @@ Both the RHS of equations and the boundary conditions must be complex
 analytic, ie., complex differentiable in the unknown variables.
 
 """
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import jacobian as _jacobian
+from . import jacobian as _jacobian
 
 class ComplexAdapter(object):
     """
@@ -155,7 +156,7 @@ class ComplexAdapter(object):
         c_z = self._unpack_z(z[:,0::2])
         c_zero = np.zeros([c_z.shape[0]], dtype=c_z.dtype)
 
-        mstar = sum(self.degrees) / 2
+        mstar = sum(self.degrees) // 2
         c_dg = _jacobian.jacobian(
             lambda u: np.reshape(self.c_gsub(c_z + u[:,None]), [mstar]),
             c_zero)

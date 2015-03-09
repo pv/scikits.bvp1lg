@@ -3,18 +3,13 @@
 """
 Tests examples
 """
+from __future__ import division, absolute_import, print_function
+
 from numpy.testing import *
 
 import scikits.bvp1lg.examples as examples
 
 from testutils import *
 
-class test_doc(TestCase):
-    def test_all(self):
-        assert doctest.testmod(examples, verbose=0)[0] == 0
-
-###############################################################################
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()
+def test_doctests():
+    assert doctest.testmod(examples, verbose=0)[0] == 0

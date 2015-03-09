@@ -23,15 +23,17 @@ Contents
 - `examples`:
   Examples (in docstrings).
 """
-from version import __version__
+from __future__ import absolute_import, division, print_function
 
-from error import *
-import colnew
-import mus
-import jacobian
-import examples
+from .version import __version__
 
-__all__ = filter(lambda s: not s.startswith('_'), dir())
+from .error import *
+from . import colnew
+from . import mus
+from . import jacobian
+from . import examples
+
+__all__ = list(filter(lambda s: not s.startswith('_'), dir()))
 
 from numpy.testing import Tester
 test = Tester().test

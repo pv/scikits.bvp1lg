@@ -3,6 +3,8 @@
 """
 Numerical approximations to Jacobians of functions
 """
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 def jacobian(f, u, eps=1e-6):
@@ -17,10 +19,10 @@ def jacobian(f, u, eps=1e-6):
     f0 = np.asarray(f(u)) # asarray: because of matrices
 
     u_shape = u.shape
-    nu = np.prod(u_shape)
+    nu = int(np.prod(u_shape))
 
     f_shape = f0.shape
-    nf = np.prod(f_shape)
+    nf = int(np.prod(f_shape))
 
     df = np.empty([nf, nu], dtype=u.dtype)
     

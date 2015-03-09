@@ -35,6 +35,6 @@ want to run the test suite, or use the ``mus`` solver.
 To run tests, you also need the Nose testing framework. You can run the tests
 with::
 
-    nosetests -v --exe scikits.bvp1lg
+    python setup.py test
 
 All tests should pass without failures.

@@ -58,12 +58,13 @@ This may make the problem non-linear.
     SIAM J. Sci. Comput. 8, 483 (1987).
     http://www.netlib.org/ode/colnew.f
 """
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import _colnew
-import jacobian as _jacobian
-import error as _error
-import complex_adapter as _complex_adapter
+from . import _colnew
+from . import jacobian as _jacobian
+from . import error as _error
+from . import complex_adapter as _complex_adapter
 
 ## Solution
 
@@ -358,7 +359,7 @@ def _colnew_solve(boundary_points,
     ncomp = len(degrees)
     mstar = int(sum(degrees))
 
-    if np.sometrue(map(lambda x: x <= 0 or x > 4, degrees)):
+    if np.sometrue(list(map(lambda x: x <= 0 or x > 4, degrees))):
         raise ValueError("Invalid value for ``degrees``")
 
     if ncomp <= 0 or mstar <= 0:
@@ -424,7 +425,7 @@ def _colnew_solve(boundary_points,
     
     fixpnt = list(boundary_points) + list(extra_fixed_points)
     fixpnt.sort()
-    fixpnt = filter(lambda x: x > left and x < right, fixpnt)
+    fixpnt = list(filter(lambda x: x > left and x < right, fixpnt))
     fixpnt = np.unique(np.array(fixpnt, np.float_).ravel())
 
     ## Verbosity
@@ -636,7 +637,7 @@ def _colnew_enter():
     stack_entry = []
     for j, com in enumerate(_colnew_commons):
         stack_sub = {}
-        for name in dir(com):
+        for name in com.__dict__.keys():
             stack_sub[name] = np.array(getattr(com, name), copy=True)
         stack_entry.append(stack_sub)
     _colnew_stack.append(stack_entry)
@@ -653,7 +654,7 @@ def _colnew_exit():
 
     entry = _colnew_stack.pop()
     for com, sub in zip(_colnew_commons, entry):
-        for name in dir(com):
+        for name in com.__dict__.keys():
             getattr(com, name)[...] = sub[name]
 
 def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,

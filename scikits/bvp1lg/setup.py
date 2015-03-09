@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function
+
 import warnings
 from numpy.distutils.misc_util import Configuration
 from numpy.distutils.system_info import (get_info, AtlasNotFoundError,
@@ -11,7 +13,7 @@ def configuration(parent_package='', top_path=None):
         blas_info = get_info('blas')
         if not blas_info:
             # Blas is required
-            print "\nError:\n%s\n" % BlasNotFoundError.__doc__
+            print("\nError:\n%s\n" % BlasNotFoundError.__doc__)
             raise SystemExit(1)
 
     config = Configuration('bvp1lg', parent_package, top_path)

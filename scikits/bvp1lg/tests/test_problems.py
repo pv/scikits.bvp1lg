@@ -3,13 +3,17 @@
 """
 Some example problems for tests
 """
-from __future__ import division
+from __future__ import division, absolute_import, print_function
+
 from numpy.testing import *
 import numpy as np
 
 from scipy import linalg, interpolate, special
 
 from testutils import *
+
+__all__ = ['TwoPointBVP', 'FirstOrderConverter', 'Problem1', 'Problem2', 'ComplexProblem2',
+           'Problem3', 'Problem4', 'Problem5', 'Problem6', 'Problem7', 'Problem8', 'Problem9']
 
 
 ###############################################################################
@@ -935,10 +939,5 @@ class Problem9(TwoPointBVP):
 
 ###############################################################################
 
-class test_doc(TestCase):
-    def test_all(self):
-        assert doctest.testmod(__import__(__name__), verbose=0)[0] == 0
-
-if __name__ == '__main__':
-    import unittest
-    unittest.main()
+def test_doctests():
+    assert doctest.testmod(__import__(__name__), verbose=0)[0] == 0

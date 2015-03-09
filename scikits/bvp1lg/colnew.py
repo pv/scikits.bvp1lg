@@ -179,8 +179,8 @@ def solve(boundary_points,
 
     :note:
         Colnew has the hard-coded limits::
-            ncomp <= 120
-            mstar <= 240
+            ncomp <= 256
+            mstar <= 512
 
     :Parameters:
     
@@ -366,9 +366,9 @@ def _colnew_solve(boundary_points,
         raise ValueError("Invalid value for ``degrees``: no equations")
 
     # keep these in sync with colnew.f
-    if ncomp > 120:
+    if ncomp > 256:
         raise ValueError("Too many equations")
-    if mstar > 240:
+    if mstar > 512:
         raise ValueError("Too many unknown variables")
 
     ## Defaults

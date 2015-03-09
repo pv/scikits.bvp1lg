@@ -1,5 +1,5 @@
---- colnew.f.orig	2015-03-09 11:40:15.743254907 +0200
-+++ colnew.f	2015-03-09 11:48:04.800716814 +0200
+--- colnew.f.orig	2015-03-09 13:57:19.134757721 +0200
++++ colnew.f	2015-03-09 14:04:24.584455584 +0200
 @@ -9,11 +9,20 @@
  C  the linear and nonlinear algebraic equation solvers.
  C  the package can be referenced as either COLNEW or COLSYS.
@@ -77,6 +77,24 @@
  C
        EXTERNAL FSUB, DFSUB, GSUB, DGSUB, GUESS
  C
+@@ -510,7 +522,7 @@
+ C...  immediately with iflag=-3.
+ C
+       IFLAG = -3
+-      IF ( NCOMP .LT. 1 .OR. NCOMP .GT. 20 )        RETURN
++      IF ( NCOMP .LT. 1 .OR. NCOMP .GT. MAXNCOMP )        RETURN
+       DO 20 I=1,NCOMP
+          IF ( M(I) .LT. 1 .OR. M(I) .GT. 4 )        RETURN
+    20 CONTINUE
+@@ -576,7 +588,7 @@
+       IF ( NTOL .LT. 0 .OR. NTOL .GT. MSTAR )       RETURN
+       IF ( NFXPNT .LT. 0 )                          RETURN
+       IF ( IPRINT .LT. (-1) .OR. IPRINT .GT. 1 )    RETURN
+-      IF ( MSTAR .LT. 0 .OR. MSTAR .GT. 40 )        RETURN
++      IF ( MSTAR .LT. 0 .OR. MSTAR .GT. MAXMSTAR )  RETURN
+       IP = 1
+       DO 100 I = 1, MSTAR
+       IF ( DABS(ZETA(I) - ALEFT) .LT. PRECIS .OR.
 @@ -791,21 +803,24 @@
  C
  C**********************************************************************

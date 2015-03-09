@@ -27,6 +27,8 @@ release = scikits.bvp1lg.__version__
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'
 default_role = "autolink"
+html_static_path = ['_static']
+html_style = 'fixup.css'
 
 
 # -- Options for HTML output ----------------------------------------------

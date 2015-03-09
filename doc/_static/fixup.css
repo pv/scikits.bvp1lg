@@ -1,0 +1,20 @@
+@import "nature.css";
+
+td.field-body > blockquote {
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
+}
+
+table.field-list th {
+  white-space: nowrap;
+  background-color: #ccc;
+  padding-left: 5px;
+  display: inline-block;
+}
+
+table.field-list {
+  border-left: 5px solid #ccc !important;
+  border-collapse: collapse;
+  border-spacing: 10px;
+}
+

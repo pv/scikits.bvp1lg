@@ -27,7 +27,7 @@ MAINTAINER_EMAIL    = 'pav@iki.fi',
 URL                 = 'http://www.iki.fi/pav/software/bvp'
 LICENSE             = 'Noncommercial, see LICENSE.txt'
 DOWNLOAD_URL        = URL
-VERSION             = '0.2.5'
+VERSION             = '0.2.5.dev'
 
 
 DOWNLOADABLE_FILES = [

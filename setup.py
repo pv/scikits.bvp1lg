@@ -5,9 +5,14 @@
 
 import os
 import sys
+import shutil
 
-import os
-import sys
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
+import patchit
 
 DISTNAME            = 'scikits.bvp1lg'
 DESCRIPTION         = 'Boundary value problem (legacy) solvers for ODEs'
@@ -24,9 +29,53 @@ LICENSE             = 'Noncommercial, see LICENSE.txt'
 DOWNLOAD_URL        = URL
 VERSION             = '0.2.5'
 
+
+DOWNLOADABLE_FILES = [
+    ('http://netlib.org/ode/colnew.f', 'lib/colnew.f.patch', 'lib/colnew.f'),
+    ('http://netlib.org/ode/mus1.f', 'lib/mus1.f.patch', 'lib/mus1.f'),
+    ('http://netlib.org/ode/mus2.f', None, 'lib/mus2.f'),
+    ('http://netlib.org/ode/mus3.f', 'lib/mus3.f.patch', 'lib/mus3.f'),
+    ('http://netlib.org/linpack/dgefa.f', None, 'lib/dgefa.f'),
+    ('http://netlib.org/linpack/dgesl.f', None, 'lib/dgesl.f'),
+]
+
+
+def download_and_patch(url, patch, dest):
+    if os.path.isfile(dest):
+        return
+    print("Downloading and patching %s..." % (url,))
+
+    orig_dst = dest + '.orig'
+    if not os.path.isfile(orig_dst):
+        with open(orig_dst, 'wb') as dst:
+            src = urlopen(url)
+            try:
+                shutil.copyfileobj(src, dst)
+            finally:
+                src.close()
+
+    if patch is None:
+        shutil.copyfile(orig_dst, dest)
+    else:
+        with open(patch, 'rb') as f:
+            patch_set = patchit.PatchSet.from_stream(f)
+
+        with open(orig_dst, 'rb') as f:
+            lines = [x.rstrip("\r\n") for x in f.readlines()]
+
+        lines = list(patch_set[0].merge(lines))
+        with open(dest, 'wb') as f:
+            f.writelines("\n".join(lines))
+
+
 def configuration(parent_package='', top_path=None, package_name=DISTNAME):
     if os.path.exists('MANIFEST'): os.remove('MANIFEST')
     from numpy.distutils.misc_util import Configuration
+
+    for url, patch, fn in DOWNLOADABLE_FILES:
+        download_and_patch(url,
+                           os.path.join(os.path.dirname(__file__), patch) if patch else None,
+                           os.path.join(os.path.dirname(__file__), fn))
 
     config = Configuration(None, parent_package, top_path,
                            namespace_packages=['scikits'],

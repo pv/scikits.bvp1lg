@@ -1,0 +1,137 @@
+--- mus1.f	1995-08-22 18:54:29.000000000 +0300
++++ mus1.f	2006-09-10 15:31:09.000000000 +0300
+@@ -31,6 +31,11 @@
+ C
+ C***********************************************************************
+ C
++C     This version of MUS is modified to work better with Scipy by
++C     Pauli Virtanen <pav@iki.fi>.
++C
++C***********************************************************************
++C
+       SUBROUTINE MUSL(FLIN,FDIF,N,IHOM,A,B,MA,MB,BCV,AMP,ER,NRTI,TI,
+      1                NTI,X,U,NU,Q,D,KPART,PHIREC,W,LW,IW,LIW,IERROR)
+ C     -----------------------------------------------------------------
+@@ -44,6 +49,10 @@
+ C
+       EXTERNAL FLIN,FDIF
+ C
++      LOGICAL DIAGNO,SILENT
++C
++      DIAGNO = IERROR.EQ.1
++      SILENT = IERROR.EQ.-1
+       I2 = 1 + N
+       I3 = I2 + N
+       J2 = 1 + N
+@@ -76,7 +85,7 @@
+      1          KPART,W(1),W(J2),W(J3),W(J4),IW(1),IW(I2),IW(I3),IERROR)
+       IF ((IERROR.NE.0).AND.(IERROR.NE.200).AND.(IERROR.NE.213))
+      1  GOTO 2000
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,0)
+       ENDIF
+@@ -85,7 +94,7 @@
+       CALL DGTUR(N,IHOM,NRTI,U,NU,NTI,Q,D,ER,IW(1),KPART,IW(I2),
+      1           IW(I3),W(1),W(J2),W(J5),W(J3),W(J4),IERROR)
+       CALL DKPCH(N,U,NU,NTI,NRTI,KPART,IW(1),ER,IERROR)
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,0)
+       ENDIF
+@@ -99,8 +108,10 @@
+      1           ER(4),IW(1),IW(I2),W(J3),W(J4),W(1),W(J2),IERROR)
+       IF (IERROR.NE.0) GOTO 2000
+       RETURN
+- 2000 WRITE(*,100) IERROR
+-      CALL ERRHAN(IERROR,ER,0)
++ 2000 IF (.NOT. SILENT) THEN
++         WRITE(*,100) IERROR
++         CALL ERRHAN(IERROR,ER,0)
++      ENDIF
+       RETURN
+   100 FORMAT(' TERMINAL ERROR IN MUSL : IERROR =',I4)
+   110 FORMAT(' WARNING ERROR IN MUSL : IERROR =',I4)
+@@ -116,9 +127,10 @@
+       INTEGER IW(LIW)
+       EXTERNAL FDIF,X0T,G
+       DIMENSION ALINC(4)
+-      LOGICAL DIAGNO
++      LOGICAL DIAGNO, SILENT
+ C
+       DIAGNO = IERROR.EQ.1
++      SILENT = IERROR.EQ.-1
+       IERROR = 0
+ C     CHECK INPUT PARAMETERS
+ C     INPUT ERROR 105
+@@ -166,7 +178,7 @@
+      1            W(1),W(I2),W(I4),W(I5),IW(1),IW(J1),WGR,LWG,IERROR)
+       NEG = IW(J1)
+       IF ((IERROR.NE.0).AND.(IERROR.NE.213)) GOTO 6000
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,NEG)
+       ENDIF
+@@ -188,7 +200,7 @@
+  1100 CALL DJINGX(G,N,NRTI,X,W(I1),NTI,Q,U,NU,ER,IW(1),JAC,D,KP,PHI,
+      1            W(1),W(I4),W(I5),W(I6),W(I7),IW(J1),IW(J2),IERROR)
+       IF ((IERROR.NE.0).AND.(IERROR.NE.240)) GOTO 6000
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,NEG)
+       ENDIF
+@@ -219,7 +231,7 @@
+      1            NU,W(1),W(I4),W(I5),IW(J1),WGR,LWG,IERROR)
+       NEG = IW(J1)
+       IF ((IERROR.NE.0).AND.(IERROR.NE.213)) GOTO 6000
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,NEG)
+       ENDIF
+@@ -244,7 +256,7 @@
+         GOTO 1400
+       ENDIF
+       IF ((IERROR.NE.0).AND.(IERROR.NE.240)) GOTO 6000
+-      IF (IERROR.NE.0) THEN
++      IF (IERROR.NE.0 .AND. .NOT. SILENT) THEN
+         WRITE(*,110) IERROR
+         CALL ERRHAN(IERROR,ER,NEG)
+       ENDIF
+@@ -319,7 +331,9 @@
+       ENDIF
+       GOTO 1100
+  2500 IF (TOL1.LE.TOL) THEN
+-       WRITE(*,*) 'RETURN FROM MUSN : NO ITERATIONS =',ITTOT
++       IF (.NOT. SILENT) THEN
++          WRITE(*,*) 'RETURN FROM MUSN : NO ITERATIONS =',ITTOT
++       ENDIF
+        RETURN
+       ENDIF
+       TOL1 = DMAX1(TOL1*TOL1,TOL)
+@@ -361,8 +375,10 @@
+  5100 IERROR = 230
+       GOTO 6000
+  5200 IERROR = 231
+- 6000 WRITE(*,100) IERROR
+-      CALL ERRHAN(IERROR,ER,NEG)
++ 6000 IF (.NOT. SILENT) THEN
++         WRITE(*,100) IERROR
++         CALL ERRHAN(IERROR,ER,NEG)
++      ENDIF
+       RETURN
+   100 FORMAT(' TERMINAL ERROR IN MUSN : IERROR = ',I4,/)
+   110 FORMAT(' WARNING ERROR IN MUSN : IERROR = ',I4,/)
+@@ -452,7 +468,7 @@
+         KM1 = K - 1
+         T1 = WTI(KM1)
+         T2 = TI(JTI)
+- 1650   CALL X0T(T1,X(1,KM1))
++ 1650   CALL X0T(N,T1,X(1,KM1))
+         IF (T1.EQ.B) GOTO 2700
+         X1 = 0.D0
+         DO 1700 I = 1 , N

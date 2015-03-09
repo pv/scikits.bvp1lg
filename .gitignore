@@ -3,6 +3,8 @@
 *.so
 *.egg-info
 *~
+lib/*.f
+lib/*.orig
 dist/*
 build/*
 \#*

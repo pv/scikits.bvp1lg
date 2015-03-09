@@ -1,0 +1,800 @@
+--- colnew.f.orig	2015-03-09 11:40:15.743254907 +0200
++++ colnew.f	2015-03-09 11:48:04.800716814 +0200
+@@ -9,11 +9,20 @@
+ C  the linear and nonlinear algebraic equation solvers.
+ C  the package can be referenced as either COLNEW or COLSYS.
+ C**********************************************************************
++C
++C  This code is slightly modified for compatibility with Scipy by
++C  Pauli Virtanen <pav@iki.fi>.
++C
++C  More extensive modifications have been made to routine LSYSLV,
++C  and the routine signatures for FSUB, DFSUB, GSUB, DGSUB, GUESS
++C  have been changed.
++C
+ C----------------------------------------------------------------------
+ C                            p a r t  1
+ C        main storage allocation and program control subroutines
+ C----------------------------------------------------------------------
+ C
++C
+       SUBROUTINE COLNEW (NCOMP, M, ALEFT, ARIGHT, ZETA, IPAR, LTOL,
+      1                   TOL, FIXPNT, ISPACE, FSPACE, IFLAG,
+      2                   FSUB, DFSUB, GSUB, DGSUB, GUESS)
+@@ -298,7 +307,7 @@
+ C                             i
+ C             zeta(i) where 1.le.i.le.mstar. it should have the heading
+ C
+-C                       subroutine gsub (i , z , g)
++C                       subroutine gsub (ncomp, mstar, z, g)
+ C
+ C             where z(u) is as for fsub, and i and g=g  are as above.
+ C                                                     i
+@@ -309,7 +318,7 @@
+ C     dgsub - name of subroutine for evaluating the i-th row of
+ C             the jacobian of g(x,u(x)).  it should have the heading
+ C
+-C                       subroutine dgsub (i , z , dg)
++C                       subroutine dgsub (ncomp, mstar, z, dg)
+ C
+ C             where z(u) is as for fsub, i as for gsub and the mstar-
+ C             vector dg should be filled with the partial derivatives
+@@ -322,7 +331,7 @@
+ C             of the mj-th derivatives of u(x). it should have the
+ C             heading
+ C
+-C                       subroutine guess (x , z , dmval)
++C                       subroutine guess (ncomp, mstar, nx, x, z, dmval)
+ C
+ C             note that this subroutine is needed only if using
+ C             ipar(9) = 1, and then all  mstar  components of z
+@@ -459,19 +468,22 @@
+ C     or when solving large scale sparse jacobian problems.
+ C
+ C----------------------------------------------------------------------
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION M(1), ZETA(1), IPAR(1), LTOL(1), TOL(1), DUMMY(1),
+-     1          FIXPNT(1), ISPACE(1), FSPACE(1)
++      DIMENSION M(*), ZETA(*), IPAR(*), LTOL(*), TOL(*), DUMMY(1),
++     1          FIXPNT(*), ISPACE(*), FSPACE(*)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+       COMMON /COLLOC/ RHO(7), COEF(49)
+-      COMMON /COLORD/ K, NC, MSTAR, KD, MMAX, MT(20)
++      COMMON /COLORD/ K, NC, MSTAR, KD, MMAX, MT(MAXNCOMP)
+       COMMON /COLAPR/ N, NOLD, NMAX, NZ, NDMZ
+       COMMON /COLMSH/ MSHFLG, MSHNUM, MSHLMT, MSHALT
+-      COMMON /COLSID/ TZETA(40), TLEFT, TRIGHT, IZETA, IDUM
++      COMMON /COLSID/ TZETA(MAXMSTAR), TLEFT, TRIGHT, IZETA, IDUM
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+-      COMMON /COLEST/ TTL(40), WGTMSH(40), WGTERR(40), TOLIN(40),
+-     1                ROOT(40), JTOL(40), LTTOL(40), NTOL
++      COMMON /COLEST/ TTL(MAXMSTAR), WGTMSH(MAXMSTAR), WGTERR(MAXMSTAR),
++     1                TOLIN(MAXMSTAR), ROOT(MAXMSTAR), JTOL(MAXMSTAR),
++     2                LTTOL(MAXMSTAR), NTOL
+ C
+       EXTERNAL FSUB, DFSUB, GSUB, DGSUB, GUESS
+ C
+@@ -791,21 +803,24 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION XI(1), XIOLD(1), Z(1), DMZ(1), RHS(1)
+-      DIMENSION G(1), W(1), V(1), VALSTR(1), SLOPE(1), ACCUM(1)
+-      DIMENSION DELZ(1), DELDMZ(1), DQZ(1), DQDMZ(1) , FIXPNT(1)
+-      DIMENSION DUMMY(1), SCALE(1), DSCALE(1)
+-      DIMENSION INTEGS(1), IPVTG(1), IPVTW(1)
++      DIMENSION XI(*), XIOLD(*), Z(*), DMZ(*), RHS(*)
++      DIMENSION G(*), W(*), V(*), VALSTR(*), SLOPE(*), ACCUM(*)
++      DIMENSION DELZ(*), DELDMZ(*), DQZ(*), DQDMZ(*) , FIXPNT(*)
++      DIMENSION DUMMY(1), SCALE(*), DSCALE(*)
++      DIMENSION INTEGS(*), IPVTG(*), IPVTW(*)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+-      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(20)
++      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(MAXNCOMP)
+       COMMON /COLAPR/ N, NOLD, NMAX, NZ, NDMZ
+       COMMON /COLMSH/ MSHFLG, MSHNUM, MSHLMT, MSHALT
+-      COMMON /COLSID/ ZETA(40), ALEFT, ARIGHT, IZETA, IDUM
++      COMMON /COLSID/ ZETA(MAXMSTAR), ALEFT, ARIGHT, IZETA, IDUM
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+-      COMMON /COLEST/ TOL(40), WGTMSH(40), WGTERR(40), TOLIN(40),
+-     1                ROOT(40), JTOL(40), LTOL(40), NTOL
++      COMMON /COLEST/ TOL(MAXMSTAR), WGTMSH(MAXMSTAR), WGTERR(MAXMSTAR),
++     1                TOLIN(MAXMSTAR), ROOT(MAXMSTAR), JTOL(MAXMSTAR),
++     2                LTOL(MAXMSTAR), NTOL
+ C
+       EXTERNAL FSUB, DFSUB, GSUB, DGSUB, GUESS
+ C
+@@ -1247,11 +1262,13 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION Z(MSTAR,1), SCALE(MSTAR,1), DSCALE(KD,1)
+-      DIMENSION XI(1), BASM(5)
++      DIMENSION Z(MSTAR,*), SCALE(MSTAR,*), DSCALE(KD,*)
++      DIMENSION XI(*), BASM(5)
+ C
+-      COMMON /COLORD/ K, NCOMP, ID1, ID2, MMAX, M(20)
++      COMMON /COLORD/ K, NCOMP, ID1, ID2, MMAX, M(MAXNCOMP)
+ C
+       BASM(1) = 1.D0
+       DO 50 J=1,N
+@@ -1358,19 +1375,23 @@
+ C                     error estimate.
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION D1(40), D2(40), SLOPE(1), ACCUM(1), VALSTR(1)
+-      DIMENSION XI(1), XIOLD(1), Z(1), DMZ(1), FIXPNT(1), DUMMY(1)
++      DIMENSION D1(MAXMSTAR), D2(MAXMSTAR), SLOPE(*), ACCUM(*),
++     1          VALSTR(*)
++      DIMENSION XI(*), XIOLD(*), Z(*), DMZ(*), FIXPNT(*), DUMMY(1)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+-      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(20)
++      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(MAXNCOMP)
+       COMMON /COLAPR/ N, NOLD, NMAX, NZ, NDMZ
+       COMMON /COLMSH/ MSHFLG, MSHNUM, MSHLMT, MSHALT
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+-      COMMON /COLSID/  ZETA(40), ALEFT, ARIGHT, IZETA, IDUM
++      COMMON /COLSID/  ZETA(MAXMSTAR), ALEFT, ARIGHT, IZETA, IDUM
+       COMMON /COLBAS/ B(28), ACOL(28,7), ASAVE(28,4)
+-      COMMON /COLEST/ TOL(40), WGTMSH(40), WGTERR(40), TOLIN(40),
+-     1                ROOT(40), JTOL(40), LTOL(40), NTOL
++      COMMON /COLEST/ TOL(MAXMSTAR), WGTMSH(MAXMSTAR), WGTERR(MAXMSTAR),
++     1                TOLIN(MAXMSTAR), ROOT(MAXMSTAR), JTOL(MAXMSTAR),
++     2                LTOL(MAXMSTAR), NTOL
+ C
+       NFXP1 = NFXPNT +1
+       GO TO (180, 100, 50, 20, 10), MODE
+@@ -1698,13 +1719,16 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION RHO(7), COEF(K,1), CNSTS1(28), CNSTS2(28), DUMMY(1)
++      DIMENSION RHO(7), COEF(K,*), CNSTS1(28), CNSTS2(28), DUMMY(1)
+ C
+-      COMMON /COLORD/ KDUM, NCOMP, MSTAR, KD, MMAX, M(20)
++      COMMON /COLORD/ KDUM, NCOMP, MSTAR, KD, MMAX, M(MAXNCOMP)
+       COMMON /COLBAS/ B(28), ACOL(28,7), ASAVE(28,4)
+-      COMMON /COLEST/ TOL(40), WGTMSH(40), WGTERR(40), TOLIN(40),
+-     1                ROOT(40), JTOL(40), LTOL(40), NTOL
++      COMMON /COLEST/ TOL(MAXMSTAR), WGTMSH(MAXMSTAR), WGTERR(MAXMSTAR),
++     1                TOLIN(MAXMSTAR), ROOT(MAXMSTAR), JTOL(MAXMSTAR),
++     2                LTOL(MAXMSTAR), NTOL
+ C
+       DATA CNSTS1 /    .25D0,     .625D-1,  7.2169D-2, 1.8342D-2,
+      1     1.9065D-2, 5.8190D-2, 5.4658D-3, 5.3370D-3, 1.8890D-2,
+@@ -1837,17 +1861,20 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION ERR(40), ERREST(40), DUMMY(1)
+-      DIMENSION XI(1), Z(1), DMZ(1), VALSTR(1)
++      DIMENSION ERR(MAXMSTAR), ERREST(MAXMSTAR), DUMMY(1)
++      DIMENSION XI(*), Z(*), DMZ(*), VALSTR(*)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+-      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(20)
++      COMMON /COLORD/ K, NCOMP, MSTAR, KD, MMAX, M(MAXNCOMP)
+       COMMON /COLAPR/ N, NOLD, NMAX, NZ, NDMZ
+       COMMON /COLMSH/ MSHFLG, MSHNUM, MSHLMT, MSHALT
+       COMMON /COLBAS/ B(28), ACOL(28,7), ASAVE(28,4)
+-      COMMON /COLEST/ TOL(40), WGTMSH(40), WGTERR(40), TOLIN(40),
+-     1                ROOT(40), JTOL(40), LTOL(40), NTOL
++      COMMON /COLEST/ TOL(MAXMSTAR), WGTMSH(MAXMSTAR), WGTERR(MAXMSTAR),
++     1                TOLIN(MAXMSTAR), ROOT(MAXMSTAR), JTOL(MAXMSTAR),
++     2                LTOL(MAXMSTAR), NTOL
+ C
+ C...  error estimates are to be generated and tested
+ C...  to see if the tolerance requirements are satisfied.
+@@ -1977,16 +2004,23 @@
+ C             = 0 otherwise
+ C
+ C*********************************************************************
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION  Z(1), DMZ(1), DELZ(1), DELDMZ(1), XI(1), XIOLD(1)
+-      DIMENSION  G(1), W(1), V(1),  RHS(1) , DMZO(1), DUMMY(1)
+-      DIMENSION  INTEGS(3,1), IPVTG(1), IPVTW(1)
+-      DIMENSION  ZVAL(40), F(40), DGZ(40), DMVAL(20), DF(800), AT(28)
++      DIMENSION  Z(*), DMZ(*), DELZ(*), DELDMZ(*), XI(*), XIOLD(*)
++      DIMENSION  G(*), W(*), V(*),  RHS(*) , DMZO(*), DUMMY(1)
++      DIMENSION  INTEGS(3,*), IPVTG(*), IPVTW(*)
++      DIMENSION  DGZ(MAXMSTAR),
++     1           DF(MAXNCOMP*MAXMSTAR), AT(28)
++C
++      DIMENSION  ZVALS(MSTAR,K,N), ZBVALS(MSTAR,MSTAR), GVALS(MSTAR),
++     1           DGVALS(MSTAR, MSTAR), DFVALS(NCOMP, MSTAR, K, N), 
++     2           XCOLS(K, N)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+       COMMON /COLLOC/ RHO(7), COEF(49)
+-      COMMON /COLORD/ K, NCOMP, MSTAR, KD,  MMAX, M(20)
+-      COMMON /COLSID/ ZETA(40), ALEFT, ARIGHT, IZETA, IZSAVE
++      COMMON /COLORD/ K, NCOMP, MSTAR, KD,  MMAX, M(MAXNCOMP)
++      COMMON /COLSID/ ZETA(MAXMSTAR), ALEFT, ARIGHT, IZETA, IZSAVE
+       COMMON /COLAPR/ N, NOLD, NMAX, NZ, NDMZ
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+       COMMON /COLBAS/ B(28), ACOL(28,7), ASAVE(28,4)
+@@ -1998,8 +2032,18 @@
+ C
+ C...  linear problem initialization
+ C
+-   10 DO 20 I=1,MSTAR
+-   20 ZVAL(I) = 0.D0
++   10 DO 11 I1=1,N
++           DO 12 I2=1,K
++                DO 13 I3=1,MSTAR
++                     ZVALS(I3,I2,I1) = 0.D0
++   13           CONTINUE
++   12      CONTINUE
++   11 CONTINUE
++      DO 14 I1=1,MSTAR
++           DO 15 I2=1,MSTAR
++                ZBVALS(I2,I1) = 0.D0
++   15      CONTINUE
++   14 CONTINUE
+ C
+ C...  initialization
+ C
+@@ -2042,164 +2086,219 @@
+ C
+ C...  the do loop 290 sets up the linear system of equations.
+ C
+-  90  CONTINUE
+-      DO 290 I=1, N
+-C
+-C...       construct a block of  a  and a corresponding piece of  rhs.
+-C
+-           XII = XI(I)
+-           H = XI(I+1) - XI(I)
+-           NROW = INTEGS(1,I)
++   90 CONTINUE
+ C
+-C...       go thru the ncomp collocation equations and side conditions
+-C...       in the i-th subinterval
++C...  call user routines to evaluate boundary conditions
+ C
+-  100      IF ( IZETA .GT. MSTAR )                  GO TO 140
+-           IF ( ZETA(IZETA) .GT. XII + PRECIS )      GO TO 140
++
++C     zero arrays
++      DO 87 I = 1, MSTAR
++           GVALS(I) = 0.D0
++           DO 88 J = 1, MSTAR
++                DGVALS(I,J) = 0.D0
++                ZBVALS(I,J) = 0.D0
++   88      CONTINUE
++   87 CONTINUE
++
+ C
+-C...       build equation for a side condition.
++C...  first fill in ZVALS
+ C
+-           IF ( MODE .EQ. 0 )                       GO TO 110
+-           IF ( IGUESS .NE. 1 )                     GO TO 102
++      IF ( MODE .EQ. 0 ) THEN
++C        linear case: noop
++      ELSEIF ( IGUESS .EQ. 1 ) THEN
++C        user-provided guess
++         CALL GUESS(NCOMP, MSTAR, MSTAR, ZETA, ZBVALS, DFVALS)
++      ENDIF
++
++      IZETA = 1
++      IOLD = 1
++      IRHS = 1
++      DO 95 I=1, N
++           XII = XI(I)
++           H = XI(I+1) - XI(I)
++
++           IF ( MODE .NE. 0 .AND. IGUESS .NE. 1 ) THEN
++              IZETA0 = IZETA
++              DO 86 IZETA = IZETA0, MSTAR
++                   IF (ZETA(IZETA) .GT. XII + PRECIS) EXIT
++                   IF ( MODE .EQ. 1 ) THEN
++C                     first iteration in the non-linear case
++                      CALL APPROX (IOLD, XII, ZBVALS(1,IZETA), AT, COEF,
++     1                     XIOLD, NOLD, Z, DMZ, K, NCOMP, MMAX, M,
++     2                     MSTAR, 2, DUMMY, 0)
++                   ELSE
++C                     other iterations in the non-linear case
++                      CALL APPROX (I, XII, ZBVALS(1,IZETA), AT, DUMMY,
++     1                     XI, N, Z, DMZ, K, NCOMP, MMAX, M, MSTAR,
++     2                     1, DUMMY, 0)
++                   ENDIF
++   86         CONTINUE
++C...          evaluate end boundary condition
++              IF ( I .GE. N ) THEN
++                 IZETA0 = IZETA
++                 DO 98 IZETA = IZETA0, MSTAR
++                      IF ( MODE .EQ. 1 ) THEN
++                         CALL APPROX (NOLD+1,ARIGHT,ZBVALS(1,IZETA), AT,
++     1                        COEF,XIOLD,NOLD,Z,DMZ,K,NCOMP,MMAX,M,
++     2                        MSTAR, 1, DUMMY, 0)
++                      ELSE
++                         CALL APPROX (N+1,ARIGHT,ZBVALS(1,IZETA),AT,
++     1                        COEF,XI, N, Z, DMZ, K, NCOMP, MMAX, M,
++     2                        MSTAR,1, DUMMY, 0)
++                      ENDIF
++   98            CONTINUE
++              ENDIF
++           ENDIF
++
++C...       evaluate interior points
++           DO 99 J = 1, K
++                HRHO = H * RHO(J)
++                XCOL = XII + HRHO
++                XCOLS(J, I) = XCOL
++                
++                IF ( MODE .EQ. 0 ) THEN
++C...               noop
++                ELSEIF ( IGUESS .EQ. 1 ) THEN
++C...               noop
++                ELSEIF ( MODE .EQ. 1 ) THEN
++C...               use previous solution.
++                   CALL APPROX (IOLD, XCOL, ZVALS(1,J,I),
++     1                  AT, COEF, XIOLD, NOLD, Z, DMZ, K, NCOMP, 
++     2                  MMAX, M, MSTAR, 2, DMZO(IRHS), 1)
++                ELSE
++C...               evaluate former collocation solution
++                   CALL APPROX (I, XCOL, ZVALS(1,J,I),
++     1                  ACOL(1,J), COEF, XI, N, Z, DMZ, K, NCOMP,
++     2                  MMAX, M, MSTAR, 4, DUMMY, 0)
++                ENDIF
++                IRHS = IRHS + NCOMP
++   99      CONTINUE
++   95 CONTINUE
++
+ C
+-C...       case where user provided current approximation
++C...  call user routines to evaluate boundary conditions
+ C
+-           CALL GUESS (XII, ZVAL, DMVAL)
+-           GO TO 110
++      IF ( MODE .NE. 3 ) THEN
++         CALL GSUB (NCOMP, MSTAR, ZBVALS, GVALS)
++      ENDIF
++      IF ( MODE .NE. 2 ) THEN
++         CALL DGSUB (NCOMP, MSTAR, ZBVALS, DGVALS)
++      ENDIF
++
+ C
+-C...       other nonlinear case
++C...  call user routines to evaluate interior
+ C
+-  102      IF ( MODE .NE. 1 )                       GO TO 106
+-           CALL APPROX (IOLD, XII, ZVAL, AT, COEF, XIOLD, NOLD,
+-     1          Z, DMZ, K, NCOMP, MMAX, M, MSTAR, 2, DUMMY, 0)
+-           GO TO 110
+-  106      CALL APPROX (I, XII, ZVAL, AT, DUMMY, XI, N, Z, DMZ,
+-     1                  K, NCOMP, MMAX, M, MSTAR, 1, DUMMY, 0)
+-  108      IF ( MODE .EQ. 3 )                       GO TO 120
++      IF ( MODE .NE. 0 .AND. IGUESS .EQ. 1 ) THEN
++         CALL GUESS(NCOMP, MSTAR, N*K, XCOLS, ZVALS, DMZO)
++      ENDIF
++      IF ( MODE .NE. 3 ) THEN
++         CALL FSUB(NCOMP, MSTAR, N*K, XCOLS, ZVALS, RHS)
++      ENDIF
++      IF ( MODE .NE. 2 .OR. IGUESS .EQ. 1 ) THEN
++         CALL DFSUB(NCOMP, MSTAR, N*K, XCOLS, ZVALS, DFVALS)
++      ENDIF
++
++      IZETA = 1
++      IOLD = 1
++      IRHS = 1
++      DO 290 I=1, N
+ C
+-C...       find  rhs  boundary value.
++C...       construct a block of  a  and a corresponding piece of  rhs.
+ C
+-  110      CALL GSUB (IZETA, ZVAL, GVAL)
+-           RHS(NDMZ+IZETA) = -GVAL
+-           RNORM = RNORM + GVAL**2
+-           IF ( MODE .EQ. 2 )                       GO TO 130
++           XII = XI(I)
++           H = XI(I+1) - XI(I)
++           NROW = INTEGS(1,I)
+ C
+-C...       build a row of  a  corresponding to a boundary point
++C...       go thru the ncomp collocation equations and side conditions
++C...       in the i-th subinterval
+ C
+-  120      CALL GDERIV (G(IG), NROW, IZETA, ZVAL, DGZ, 1, DGSUB)
+-  130      IZETA = IZETA + 1
+-           GO TO 100
++           IZETA0 = IZETA
++           DO 140 IZETA = IZETA0, MSTAR
++                IF (ZETA(IZETA) .GT. XII + PRECIS) EXIT
++
++                IF ( MODE .NE. 3 ) THEN
++C...               find  rhs  boundary value.
++                   RHS(NDMZ+IZETA) = -GVALS(IZETA)
++                   RNORM = RNORM + GVALS(IZETA)**2
++                ENDIF
++
++                IF ( MODE .NE. 2 ) THEN
++C...               build a row of  a  corresponding to a boundary point
++                   CALL GDERIV (G(IG), NROW, IZETA, ZBVALS(1,IZETA), 
++     1                  DGZ, 1, DGVALS(1,IZETA))
++                ENDIF
++  140      CONTINUE
++
+ C
+ C...       assemble collocation equations
+ C
+-  140      DO 220 J = 1, K
+-             HRHO = H * RHO(J)
+-             XCOL = XII + HRHO
+-C
+-C...         this value corresponds to a collocation (interior)
+-C...         point. build the corresponding  ncomp  equations.
+-C
+-             IF ( MODE .EQ. 0 )                     GO TO 200
+-             IF ( IGUESS .NE. 1 )                   GO TO 160
+-C
+-C...         use initial approximation provided by the user.
+-C
+-             CALL GUESS (XCOL, ZVAL, DMZO(IRHS) )
+-             GO TO 170
+-C
+-C...         find  rhs  values
+-C
+-  160        IF ( MODE .NE. 1 )                     GO TO 190
+-             CALL APPROX (IOLD, XCOL, ZVAL, AT, COEF, XIOLD, NOLD,
+-     1            Z, DMZ, K, NCOMP, MMAX, M, MSTAR, 2, DMZO(IRHS), 1)
+-C
+-  170        CALL FSUB (XCOL, ZVAL, F)
+-             DO 180 JJ = 1, NCOMP
+-               VALUE = DMZO(IRHS) - F(JJ)
+-               RHS(IRHS) = - VALUE
+-               RNORM = RNORM + VALUE**2
+-               IRHS = IRHS + 1
+-  180        CONTINUE
+-             GO TO 210
+-C
+-C...         evaluate former collocation solution
+-C
+-  190        CALL APPROX (I, XCOL, ZVAL, ACOL(1,J), COEF, XI, N,
+-     1            Z, DMZ, K, NCOMP, MMAX, M, MSTAR, 4, DUMMY, 0)
+-             IF ( MODE .EQ. 3 )                     GO TO 210
+-C
+-C...         fill in  rhs  values (and accumulate its norm).
+-C
+-             CALL FSUB (XCOL, ZVAL, F)
+-             DO 195 JJ = 1, NCOMP
+-               VALUE = DMZ(IRHS) - F(JJ)
+-               RHS(IRHS) = - VALUE
+-               RNORM = RNORM + VALUE**2
+-               IRHS = IRHS + 1
+-  195        CONTINUE
+-             GO TO 220
+-C
+-C...         the linear case
+-C
+-  200        CALL FSUB (XCOL, ZVAL, RHS(IRHS))
+-             IRHS = IRHS + NCOMP
++           DO 220 J = 1, K
++                HRHO = H * RHO(J)
++                XCOL = XII + HRHO
++
+ C
+-C...         fill in ncomp rows of  w and v
++C...            this value corresponds to a collocation (interior)
++C...            point. build the corresponding  ncomp  equations.
+ C
+-  210        CALL VWBLOK (XCOL, HRHO, J, W(IW), V(IV), IPVTW(IDMZ),
+-     1       KD, ZVAL, DF, ACOL(1,J), DMZO(IDMZO), NCOMP, DFSUB, MSING)
+-             IF ( MSING .NE. 0 )                    RETURN
++
++                IF ( MODE .EQ. 0 ) THEN
++C...               the linear case: noop
++                ELSEIF ( IGUESS .EQ. 1 .OR. MODE .EQ. 1 ) THEN
++C...               find  rhs  values
++                   DO 180 JJ = 1, NCOMP
++                        VALUE = DMZO(IRHS) - RHS(IRHS)
++                        RHS(IRHS) = - VALUE
++                        RNORM = RNORM + VALUE**2
++                        IRHS = IRHS + 1
++  180              CONTINUE
++                ENDIF
++
++                IF ( MODE .EQ. 2 .AND. IGUESS .NE. 1) THEN
++C...               fill in  rhs  values (and accumulate its norm).
++                   DO 195 JJ = 1, NCOMP
++                        VALUE = DMZ(IRHS) - RHS(IRHS)
++                        RHS(IRHS) = - VALUE
++                        RNORM = RNORM + VALUE**2
++                        IRHS = IRHS + 1
++  195              CONTINUE
++                ELSE
++C...               fill in ncomp rows of  w and v              
++                   CALL VWBLOK (XCOL, HRHO, J, W(IW), V(IV),IPVTW(IDMZ),
++     1                  KD, ZVALS(1,J,I), DFVALS(1,1,J,I), ACOL(1,J),
++     2                  DMZO(IDMZO), NCOMP, MSING)
++                   IF ( MSING .NE. 0 ) RETURN
++                ENDIF
+   220      CONTINUE
+ C
+ C...       build global bvp matrix  g
+ C
+            IF ( MODE .NE. 2 )
+-     1      CALL GBLOCK (H, G(IG), NROW, IZETA, W(IW), V(IV), KD,
+-     2                  DUMMY, DELDMZ(IDMZ), IPVTW(IDMZ), 1 )
+-           IF ( I .LT. N )                          GO TO 280
+-           IZSAVE = IZETA
+-  240      IF ( IZETA .GT. MSTAR )                  GO TO 290
+-C
+-C...       build equation for a side condition.
+-C
+-           IF ( MODE .EQ. 0 )                       GO TO 250
+-           IF ( IGUESS .NE. 1 )                     GO TO 245
+-C
+-C...       case where user provided current approximation
+-C
+-           CALL GUESS (ARIGHT, ZVAL, DMVAL)
+-           GO TO 250
+-C
+-C...       other nonlinear case
+-C
+-  245      IF ( MODE .NE. 1 )                       GO TO 246
+-           CALL APPROX (NOLD+1, ARIGHT, ZVAL, AT, COEF, XIOLD, NOLD,
+-     1          Z, DMZ, K, NCOMP, MMAX, M, MSTAR, 1, DUMMY, 0)
+-           GO TO 250
+-  246      CALL APPROX (N+1, ARIGHT, ZVAL, AT, COEF, XI, N,
+-     1          Z, DMZ, K, NCOMP, MMAX, M, MSTAR, 1, DUMMY, 0)
+-  248      IF ( MODE .EQ. 3 )                       GO TO 260
+-C
+-C...       find  rhs  boundary value.
+-C
+-  250      CALL GSUB (IZETA, ZVAL, GVAL)
+-           RHS(NDMZ+IZETA) = - GVAL
+-           RNORM = RNORM + GVAL**2
+-           IF ( MODE .EQ. 2 )                       GO TO 270
+-C
+-C...       build a row of  a  corresponding to a boundary point
+-C
+-  260      CALL GDERIV (G(IG), NROW, IZETA+MSTAR, ZVAL, DGZ, 2, DGSUB)
+-  270      IZETA = IZETA + 1
+-           GO TO 240
++     1          CALL GBLOCK (H, G(IG), NROW, IZETA, W(IW), V(IV), KD,
++     2                       DUMMY, DELDMZ(IDMZ), IPVTW(IDMZ), 1 )
++           
++           IF ( I .GE. N ) THEN
++              IZSAVE = IZETA
++              DO 280 IZETA = IZSAVE, MSTAR
++                   IF ( MODE .NE. 3 ) THEN
++                      RHS(NDMZ+IZETA) = - GVALS(IZETA)
++                      RNORM = RNORM + GVALS(IZETA)**2
++                   ENDIF
++
++                   IF ( MODE .NE. 2 ) THEN
++                      CALL GDERIV (G(IG), NROW, IZETA+MSTAR, 
++     1                     ZBVALS(1,IZETA),DGZ, 2, DGVALS(1,IZETA))
++                   ENDIF
++  280         CONTINUE
+ C
+ C...       update counters -- i-th block completed
+ C
+-  280      IG = IG + NROW * NCOL
+-           IV = IV + KD * MSTAR
+-           IW = IW + KD * KD
+-           IDMZ = IDMZ + KD
+-           IF ( MODE .EQ. 1 )  IDMZO = IDMZO + KD
++           ELSE
++              IG = IG + NROW * NCOL
++              IV = IV + KD * MSTAR
++              IW = IW + KD * KD
++              IDMZ = IDMZ + KD
++              IF ( MODE .EQ. 1 )  IDMZO = IDMZO + KD
++           ENDIF
+   290 CONTINUE
+ C
+ C...       assembly process completed
+@@ -2295,7 +2394,7 @@
+ C
+       RETURN
+       END
+-      SUBROUTINE GDERIV ( GI, NROW, IROW, ZVAL, DGZ, MODE, DGSUB)
++      SUBROUTINE GDERIV ( GI, NROW, IROW, ZVAL, DGZ, MODE, DG)
+ C
+ C**********************************************************************
+ C
+@@ -2316,22 +2415,15 @@
+ C      dg     - the derivatives of the side condition.
+ C
+ C**********************************************************************
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION GI(NROW,1), ZVAL(1), DGZ(1), DG(40)
++      DIMENSION GI(NROW,*), ZVAL(*), DGZ(*), DG(MAXMSTAR)
+ C
+-      COMMON /COLORD/ KDUM, NDUM, MSTAR, KD, MMAX, M(20)
+-      COMMON /COLSID/ ZETA(40), ALEFT, ARIGHT, IZETA, IDUM
++      COMMON /COLORD/ KDUM, NDUM, MSTAR, KD, MMAX, M(MAXNCOMP)
++      COMMON /COLSID/ ZETA(MAXMSTAR), ALEFT, ARIGHT, IZETA, IDUM
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+ C
+-C...  zero jacobian dg
+-C
+-      DO 10 J=1,MSTAR
+-   10   DG(J) = 0.D0
+-C
+-C...  evaluate jacobian dg
+-C
+-      CALL DGSUB (IZETA, ZVAL, DG)
+-C
+ C...  evaluate  dgz = dg * zval  once for a new mesh
+ C
+       IF (NONLIN .EQ. 0 .OR. ITER .GT. 0)           GO TO 30
+@@ -2364,7 +2456,7 @@
+       RETURN
+       END
+       SUBROUTINE VWBLOK (XCOL, HRHO, JJ, WI, VI, IPVTW, KD, ZVAL,
+-     1                   DF, ACOL, DMZO, NCOMP, DFSUB, MSING)
++     1                   DF, ACOL, DMZO, NCOMP, MSING)
+ C
+ C**********************************************************************
+ C
+@@ -2387,11 +2479,13 @@
+ C      jcomp  - counter for the component being dealt with.
+ C
+ C**********************************************************************
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION WI(KD,1), VI(KD,1), ZVAL(1), DMZO(1), DF(NCOMP,1)
+-      DIMENSION IPVTW(1),  HA(7,4), ACOL(7,4), BASM(5)
++      DIMENSION WI(KD,*), VI(KD,*), ZVAL(*), DMZO(*), DF(NCOMP,*)
++      DIMENSION IPVTW(*),  HA(7,4), ACOL(7,4), BASM(5)
+ C
+-      COMMON /COLORD/ K, NCDUM, MSTAR, KDUM, MMAX, M(20)
++      COMMON /COLORD/ K, NCDUM, MSTAR, KDUM, MMAX, M(MAXNCOMP)
+       COMMON /COLNLN/ NONLIN, ITER, LIMIT, ICARE, IGUESS
+ C
+ C...  if jj = 1 initialize  wi .
+@@ -2411,12 +2505,6 @@
+                    HA(J,L) = FACT * ACOL(J,L)
+   150        CONTINUE
+ C
+-C... zero jacobian
+-C
+-      DO 40 JCOL = 1, MSTAR
+-        DO 40 IR = 1, NCOMP
+-   40 DF(IR,JCOL) = 0.D0
+-C
+ C...  build ncomp rows for interior collocation point x.
+ C...  the linear expressions to be constructed are:
+ C...   (m(id))
+@@ -2424,7 +2512,6 @@
+ C...   id
+ C...  for id = 1 to ncomp.
+ C
+-      CALL DFSUB (XCOL, ZVAL, DF)
+       I0 = (JJ-1) * NCOMP
+       I1 = I0 + 1
+       I2 = I0 + NCOMP
+@@ -2516,12 +2603,14 @@
+ C      irow   - the first row in gi to be used for equations.
+ C
+ C**********************************************************************
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+       DIMENSION HB(7,4), BASM(5)
+-      DIMENSION GI(NROW,1), WI(1), VI(KD,1)
+-      DIMENSION RHSZ(1), RHSDMZ(1), IPVTW(1)
++      DIMENSION GI(NROW,*), WI(*), VI(KD,*)
++      DIMENSION RHSZ(*), RHSDMZ(*), IPVTW(*)
+ C
+-      COMMON /COLORD/  K, NCOMP, MSTAR, KDUM, MMAX, M(20)
++      COMMON /COLORD/  K, NCOMP, MSTAR, KDUM, MMAX, M(MAXNCOMP)
+       COMMON /COLBAS/ B(7,4), ACOL(28,7), ASAVE(28,4)
+ C
+ C...  compute local basis
+@@ -2612,7 +2701,7 @@
+ C*****************************************************************
+ C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION Z(1), FSPACE(1), ISPACE(1), A(28), DUMMY(1)
++      DIMENSION Z(*), FSPACE(*), ISPACE(*), A(28), DUMMY(1)
+       IS6 = ISPACE(6)
+       IS5 = ISPACE(1) + 2
+       IS4 = IS5 + ISPACE(4) * (ISPACE(1) + 1)
+@@ -2622,6 +2711,23 @@
+      2             ISPACE(5), ISPACE(8), ISPACE(4), 2, DUMMY, 0)
+       RETURN
+       END
++      SUBROUTINE APPSLN_MANY (NX, X, Z, FSPACE, ISPACE)
++      IMPLICIT REAL*8 (A-H,O-Z)
++      DIMENSION FSPACE(*), ISPACE(*), A(28), DUMMY(1)
++      DIMENSION Z(*), X(*)
++      IS6 = ISPACE(6)
++      IS5 = ISPACE(1) + 2
++      IS4 = IS5 + ISPACE(4) * (ISPACE(1) + 1)
++      I = 1
++      DO 10 J = 1, NX
++           IZ = 1 + ISPACE(4)*(J-1)
++           CALL APPROX (I, X(J), Z(IZ), A, FSPACE(IS6), FSPACE(1),
++     1          ISPACE(1),
++     2          FSPACE(IS5), FSPACE(IS4), ISPACE(2), ISPACE(3),
++     3          ISPACE(5), ISPACE(8), ISPACE(4), 2, DUMMY, 0)
++   10 CONTINUE
++      RETURN
++      END
+       SUBROUTINE APPROX (I, X, ZVAL, A, COEF, XI, N, Z, DMZ, K,
+      1                   NCOMP, MMAX, M, MSTAR, MODE, DMVAL, MODM )
+ C
+@@ -2648,9 +2754,11 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION ZVAL(1), DMVAL(1), XI(1), M(1), A(7,1), DM(7)
+-      DIMENSION Z(1), DMZ(1), BM(4), COEF(1)
++      DIMENSION ZVAL(*), DMVAL(*), XI(*), M(*), A(7,*), DM(7)
++      DIMENSION Z(*), DMZ(*), BM(4), COEF(*)
+ C
+       COMMON /COLOUT/ PRECIS, IOUT, IPRINT
+ C
+@@ -2761,7 +2869,7 @@
+ C**********************************************************************
+ C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION COEF(K,1), RKB(7,1), DM(1), T(10)
++      DIMENSION COEF(K,*), RKB(7,*), DM(*), T(10)
+ C
+       IF ( K .EQ. 1 )                            GO TO 70
+       KPM1 = K + M - 1
+@@ -2841,8 +2949,10 @@
+ C
+ C**********************************************************************
+ C
++      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION UHIGH(1), DMZ(1)
++      DIMENSION UHIGH(*), DMZ(*)
+ C
+       COMMON /COLLOC/ RHO(7), COEF(49)
+ C
+@@ -2876,7 +2986,7 @@
+ C**********************************************************************
+ C
+       IMPLICIT REAL*8 (A-H,O-Z)
+-      DIMENSION V(KD,1), DMZ(KD,1), Z(1)
++      DIMENSION V(KD,*), DMZ(KD,*), Z(*)
+ C
+       JZ = 1
+       DO 30 I = 1, N
+@@ -3265,3 +3375,9 @@
+    60 X(1) = X(1)/W(1,1)
+       RETURN
+       END
++
++C     Local Variables:
++C     mode:fortran
++C     fortran-line-number-indent:4
++C     fortran-do-indent:5
++C     End:

@@ -7,9 +7,8 @@ from numpy.distutils.system_info import (get_info, AtlasNotFoundError,
                                          BlasNotFoundError)
 
 def configuration(parent_package='', top_path=None):
-    blas_info = get_info('atlas')
+    blas_info = get_info('lapack_opt')
     if not blas_info:
-        warnings.warn(AtlasNotFoundError.__doc__)
         blas_info = get_info('blas')
         if not blas_info:
             # Blas is required

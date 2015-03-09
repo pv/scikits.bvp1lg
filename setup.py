@@ -6,11 +6,14 @@
 import os
 import sys
 import shutil
+from hashlib import sha256
+from distutils.dep_util import newer
 
 try:
     from urllib2 import urlopen
 except ImportError:
     from urllib.request import urlopen
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
 import patchit
 
@@ -31,22 +34,30 @@ VERSION             = '0.2.5.dev'
 
 
 DOWNLOADABLE_FILES = [
-    ('http://netlib.org/ode/colnew.f', 'lib/colnew.f.patch', 'lib/colnew.f'),
-    ('http://netlib.org/ode/mus1.f', 'lib/mus1.f.patch', 'lib/mus1.f'),
-    ('http://netlib.org/ode/mus2.f', None, 'lib/mus2.f'),
-    ('http://netlib.org/ode/mus3.f', 'lib/mus3.f.patch', 'lib/mus3.f'),
-    ('http://netlib.org/linpack/dgefa.f', None, 'lib/dgefa.f'),
-    ('http://netlib.org/linpack/dgesl.f', None, 'lib/dgesl.f'),
+    ('http://netlib.org/ode/colnew.f', 'lib/colnew.f.patch', 'lib/colnew.f',
+     'e868b78f41c60bc38ac0f56981730c0dba8e592097f24af2537452f3d283e79e'),
+    ('http://netlib.org/ode/mus1.f', 'lib/mus1.f.patch', 'lib/mus1.f',
+     '3e159aa446dc1aa06695999d8b6deea5b5ba41a347fdf7aa6a33849d5de5f3a6'),
+    ('http://netlib.org/ode/mus2.f', None, 'lib/mus2.f',
+     'a17132108507d9c9b62fce8225fc3f134334ef1ce2abe61281307cf7313bc3c7'),
+    ('http://netlib.org/ode/mus3.f', 'lib/mus3.f.patch', 'lib/mus3.f',
+     '3aa1e25e79b8af2123036092bb4d5f1b957c60401987ba00ddcd921b45d0c5fe'),
 ]
 
 
-def download_and_patch(url, patch, dest):
-    if os.path.isfile(dest):
-        return
-    print("Downloading and patching %s..." % (url,))
+def sha256sum(fn):
+    with open(fn, 'rb') as f:
+        return sha256(f.read()).hexdigest()
 
+
+def download_and_patch(url, patch, dest, checksum):
     orig_dst = dest + '.orig'
+
+    if (patch is None or not newer(patch, dest)) and os.path.isfile(dest) and os.path.isfile(orig_dst):
+        return
+
     if not os.path.isfile(orig_dst):
+        print("Downloading %s..." % (url,))
         with open(orig_dst, 'wb') as dst:
             src = urlopen(url)
             try:
@@ -54,9 +65,16 @@ def download_and_patch(url, patch, dest):
             finally:
                 src.close()
 
+    downloaded_hash = sha256sum(orig_dst)
+    if downloaded_hash != checksum:
+        os.remove(orig_dst)
+        raise RuntimeError("Downloaded file fails checksum!")
+
     if patch is None:
         shutil.copyfile(orig_dst, dest)
     else:
+        print("Patching %s..." % (os.path.basename(dest),))
+
         with open(patch, 'r') as f:
             patch_set = patchit.PatchSet.from_stream(f)
 
@@ -72,10 +90,11 @@ def configuration(parent_package='', top_path=None, package_name=DISTNAME):
     if os.path.exists('MANIFEST'): os.remove('MANIFEST')
     from numpy.distutils.misc_util import Configuration
 
-    for url, patch, fn in DOWNLOADABLE_FILES:
+    for url, patch, fn, checksum in DOWNLOADABLE_FILES:
         download_and_patch(url,
                            os.path.join(os.path.dirname(__file__), patch) if patch else None,
-                           os.path.join(os.path.dirname(__file__), fn))
+                           os.path.join(os.path.dirname(__file__), fn),
+                           checksum)
 
     config = Configuration(None, parent_package, top_path,
                            namespace_packages=['scikits'],

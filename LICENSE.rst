@@ -5,7 +5,7 @@ The following codes are from www.netlib.org and have varying licensing
 conditions:
 
     lib/colnew.f
-    
+
 	U. Ascher and G. Bader
 	SIAM J. Sci. Comput. 8, 483 (1987).
 	http://www.netlib.org/ode/colnew.f
@@ -13,7 +13,7 @@ conditions:
 	U. Ascher, J. Christiansen, and R.D. Russell
 	ACM TOMS 7 (1981) 223-229
 	http://www.netlib.org/ode/colsys.f
-	
+
 	COLNEW is based on COLSYS, which is algorithm #569 in the 
 	Collected Algorithms of the ACM catalogue. These are by default
 	covered by the license in:
@@ -23,19 +23,21 @@ conditions:
 	In short, it forbids any commercial use, and places some restrictions
 	on non-commercial use.
 
+        Downloaded from netlib.org and patched at package install time.
+
     lib/mus1.f, lib/mus2.f, lib/mus3.f, lib/mus.doc
 
 	R.M.M. Mattheij, G.W.M. Staarink.
-	
+
 	Licensing information not known.
-	
+
+        Downloaded from netlib.org and patched at package install time.
+
     lib/dgefa.f, lib/dgesl.f
 
-	These come from Linpack, www.netlib.org/linpack, but I do not know
-	about the license. Some linpack code is included already in Scipy,
-	though.
-
-Use this module at your own legal risk!
+	From Linpack, www.netlib.org/linpack
+        The license is 3-clause BSD,
+        https://bugzilla.redhat.com/show_bug.cgi?id=1000829#c13
 
 
 License of the Python codes (scikits/*)

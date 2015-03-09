@@ -3,7 +3,10 @@
 *.so
 *.egg-info
 *~
-lib/*.f
+lib/colnew.f
+lib/mus1.f
+lib/mus2.f
+lib/mus3.f
 lib/*.orig
 dist/*
 build/*

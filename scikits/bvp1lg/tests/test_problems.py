@@ -13,7 +13,8 @@ from scipy import linalg, interpolate, special
 from testutils import *
 
 __all__ = ['TwoPointBVP', 'FirstOrderConverter', 'Problem1', 'Problem2', 'ComplexProblem2',
-           'Problem3', 'Problem4', 'Problem5', 'Problem6', 'Problem7', 'Problem8', 'Problem9']
+           'Problem3', 'Problem4', 'Problem5', 'Problem6', 'Problem7', 'Problem8', 'Problem9',
+           'Problem10']
 
 
 ###############################################################################
@@ -935,6 +936,51 @@ class Problem9(TwoPointBVP):
         y, yp = special.mathieu_cem(m, self.q, 180/np.pi * x)
         a = special.mathieu_a(m, self.q)
         return np.array([y/scale, yp/scale, np.ones(x.shape)*a]).T
+
+
+class Problem10(TwoPointBVP):
+    """
+    A big trivial test problem::
+
+       y'' = 0
+       y(0) = 0, y(1) = 1
+    """
+
+    m = [2]*256
+
+    a = 0
+    b = 1
+    n_a = 256
+    linear = False
+    homogenous = True
+    vectorized = True
+
+    def f(self, x, u):
+        return np.zeros((self.n_a, x.size))
+
+    def df(self, x, u):
+        return np.zeros((self.n_a, 2*self.n_a, x.size))
+
+    def g(self, u_a, u_b):
+        return np.concatenate([u_a[::2] - 0, u_b[::2] - 1])
+
+    def dg(self, u_a, u_b):
+        du_a = np.zeros((2*self.n_a, 2*self.n_a))
+        du_b = np.zeros((2*self.n_a, 2*self.n_a))
+        i = np.arange(0, self.n_a)
+        j = np.arange(0, 2*self.n_a, 2)
+        du_a[i,j] = 1
+        du_b[i+self.n_a,j] = 1
+        return (du_a, du_b)
+
+    guess = None
+
+    def exact_solution(self, x):
+        x = np.asarray(x)
+        v = np.zeros((x.size, self.n_a*2))
+        v[:,::2] = x[:,None]
+        v[:,1::2] = 1
+        return v
 
 
 ###############################################################################

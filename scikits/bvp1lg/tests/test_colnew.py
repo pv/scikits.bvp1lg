@@ -187,6 +187,14 @@ class TestColnew(object):
         assert np.allclose(problem.exact_solution(x), solution(x),
                           rtol=1e-3, atol=1e-6)
 
+    def test_problem_10(self, num_jac=False):
+        # Solve problem #10
+        problem = Problem10()
+        solution = solve_with_colnew(problem, numerical_jacobians=num_jac)
+        x = np.linspace(problem.a, problem.b, 10)
+        assert np.allclose(problem.exact_solution(x), solution(x),
+                          rtol=1e-3, atol=1e-6)
+
     def test_continuation(self, num_jac=False):
         # Solve problem #3 for multiple values of C using continuation
         problem = Problem3()

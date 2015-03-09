@@ -13,23 +13,25 @@ def configuration(parent_package='', top_path=None):
             # Blas is required
             print "\nError:\n%s\n" % BlasNotFoundError.__doc__
             raise SystemExit(1)
-    
-    config = Configuration('bvp', parent_package, top_path)
+
+    config = Configuration('bvp1lg', parent_package, top_path)
     config.add_extension('_colnew',
-                         sources=['../lib/colnew.pyf',
-                                  '../lib/colnew.f',
-                                  '../lib/dgesl.f',
-                                  '../lib/dgefa.f'],
+                         sources=['../../lib/colnew.pyf',
+                                  '../../lib/colnew.f',
+                                  '../../lib/dgesl.f',
+                                  '../../lib/dgefa.f'],
                          libraries=blas_info['libraries'],
                          library_dirs=blas_info['library_dirs'])
     config.add_extension('_mus',
-                         sources=['../lib/mus.pyf',
-                                  '../lib/mus1.f',
-                                  '../lib/mus2.f',
-                                  '../lib/mus3.f',
-                                  '../lib/dgesl.f',
-                                  '../lib/dgefa.f'],
+                         sources=['../../lib/mus.pyf',
+                                  '../../lib/mus1.f',
+                                  '../../lib/mus2.f',
+                                  '../../lib/mus3.f',
+                                  '../../lib/dgesl.f',
+                                  '../../lib/dgefa.f'],
                          libraries=blas_info['libraries'],
                          library_dirs=blas_info['library_dirs'])
-    config.add_subpackage('tests')
+
+    config.add_data_dir('tests')
+
     return config

@@ -30,11 +30,9 @@ boundary-value problems.
     I have not yet figured out what the problem is, so you may be
     better off using the `colnew` package.
 """
-import scipy as _N
+import numpy as np
 import _mus
 import warnings as _warnings
-
-_N.pkgload('interpolate')
 
 from error import *
 
@@ -126,26 +124,26 @@ def __get_output_points(output_points):
     
     if output_points == None:
         if nrti <= 1:
-            ti = _N.zeros([200], _N.float64)
+            ti = np.zeros([200], np.float64)
             nrti = 0
         else:
-            ti = _N.zeros([nrti + 4], _N.float64)
+            ti = np.zeros([nrti + 4], np.float64)
     else:
         nrti = len(output_points)
-        ti = _N.zeros([nrti + 4], _N.float64)
+        ti = np.zeros([nrti + 4], np.float64)
         ti[:nrti] = output_points
     return nrti, ti
 
 def __get_tolerance(rtol, atol):
     if rtol == None:
-        rtol = _N.finfo(_N.float64).eps * 10
+        rtol = np.finfo(np.float64).eps * 10
     if atol == None:
         atol = 0
 
-    er = _N.zeros([5], _N.float64)
+    er = np.zeros([5], np.float64)
     er[0] = rtol
     er[1] = atol
-    er[2] = _N.finfo(_N.float64).eps
+    er[2] = np.finfo(np.float64).eps
     
     return er
 
@@ -254,7 +252,7 @@ def solve_linear(f_homogenous, f_nonhomogenous, a, b, m_a, m_b, bcv,
 
     ## Finish
 
-    return ti[:nrti].copy(), _N.transpose(y[:,:nrti]).copy()
+    return ti[:nrti].copy(), np.transpose(y[:,:nrti]).copy()
 
 ###############################################################################
 
@@ -334,7 +332,10 @@ def solve_nonlinear(func, gsub, initial_guess, a, b,
         Infinities occurred
     :raise SystemError:
         Invalid output from user routines. (FIXME: these should be fixed)
+
     """
+    ## Postponed input -- soft dependency on Scipy only
+    import scipy.interpolate as _interpolate
 
     ## Determine size
 
@@ -359,7 +360,7 @@ def solve_nonlinear(func, gsub, initial_guess, a, b,
 
     if not callable(initial_guess) and isinstance(initial_guess, tuple):
         x, y = initial_guess
-        interp = N.interpolate.interp1d(x, y)
+        interp = _interpolate.interp1d(x, y)
         def simple_guess(x):
             return interp(x)
         initial_guess = simple_guess
@@ -383,4 +384,4 @@ def solve_nonlinear(func, gsub, initial_guess, a, b,
 
     ## Finish
 
-    return ti[:nrti].copy(), _N.transpose(y[:,:nrti]).copy()
+    return ti[:nrti].copy(), np.transpose(y[:,:nrti]).copy()

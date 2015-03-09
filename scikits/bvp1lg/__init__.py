@@ -23,5 +23,15 @@ Contents
 - `examples`:
   Examples (in docstrings).
 """
+from version import __version__
 
-__version__ = "0.2.4.dev"
+from error import *
+import colnew
+import mus
+import jacobian
+import examples
+
+__all__ = filter(lambda s: not s.startswith('_'), dir())
+
+from numpy.testing import Tester
+test = Tester().test

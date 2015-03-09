@@ -5,12 +5,11 @@ Some example problems for tests
 """
 from __future__ import division
 from numpy.testing import *
-import scipy as N
-N.pkgload('linalg', 'interpolate', 'special')
+import numpy as np
 
-set_local_path()
+from scipy import linalg, interpolate, special
+
 from testutils import *
-restore_path()
 
 
 ###############################################################################
@@ -20,7 +19,7 @@ class TwoPointBVP(object):
     A generic two-point boundary value problem::
 
         u_i^{m_i}(x) = f_i(x, u),   i = 1 .. N
-        g_j(u_a, u_b) = 0,          M = m_1 + ... + m_N
+        g_j(u_a, u_b) = 0,          M = m_1 + ... + mnp
 
     where ``a`` and ``b`` are some given positions.
     """
@@ -52,7 +51,7 @@ class TwoPointBVP(object):
     vectorized = False
     """Are the functions vectorizable over x?"""
 
-    dtype = N.float64
+    dtype = np.float64
     """Problem's dtype"""
 
     def f(self, x, u):
@@ -60,7 +59,7 @@ class TwoPointBVP(object):
         Function ``f`` at position ``x``.
 
         :param x: scalar position
-        :param u: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
+        :param u: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
         :rtype: array(M)
         """
         NotImplemented
@@ -69,7 +68,7 @@ class TwoPointBVP(object):
         Partial derivatives of function ``f`` at position ``x``.
         
         :param x: scalar position
-        :param u: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
+        :param u: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
         :rtype: array(N, M)
         """
         NotImplemented
@@ -78,8 +77,8 @@ class TwoPointBVP(object):
         The function ``g``.
         
         :param x: scalar position
-        :param u_a: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
-        :param u_b: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
+        :param u_a: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
+        :param u_b: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
         :returns: array(M)
         """
         NotImplemented
@@ -87,8 +86,8 @@ class TwoPointBVP(object):
         """
         Partial derivatives of the function g at ``a`` and at ``b``.
         
-        :param u_a: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
-        :param u_b: array(M), as [u_1, u_1^1, ..., u_2, ..., u_N^{m_N - 1}]
+        :param u_a: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
+        :param u_b: array(M), as [u_1, u_1^1, ..., u_2, ..., unp^{mnp - 1}]
         :returns: (array(M, M), array(M, M))
         """
         NotImplemented
@@ -120,8 +119,8 @@ class FirstOrderConverter(object):
         self.problem = problem
 
         self.mstar = sum(problem.m)
-        self.f_map = N.zeros([len(problem.m)], N.int_)
-        self.y_map = N.zeros([self.mstar - len(problem.m)], N.int_)
+        self.f_map = np.zeros([len(problem.m)], np.int_)
+        self.y_map = np.zeros([self.mstar - len(problem.m)], np.int_)
         self.m = [1]*self.mstar
 
         # Ugh, looks like someone is writing Fortran in Python
@@ -136,13 +135,13 @@ class FirstOrderConverter(object):
             i += 1
 
     def f(self, x, y):
-        dy = N.empty([self.mstar], self.problem.dtype)
+        dy = np.empty([self.mstar], self.problem.dtype)
         dy[self.f_map] = self.problem.f(x, y)
         dy[self.y_map] = y[self.y_map + 1]
         return dy
 
     def df(self, x, y):
-        ddy = N.zeros([self.mstar, self.mstar], self.problem.dtype)
+        ddy = np.zeros([self.mstar, self.mstar], self.problem.dtype)
         ddy[self.f_map, :] = self.problem.df(x, y)
         ddy[self.y_map, self.y_map + 1] = 1
         return ddy
@@ -175,18 +174,18 @@ class Problem1(TwoPointBVP):
     homogenous = True
 
     def f(self, x, u):
-        return N.array([0])
+        return np.array([0])
 
     def df(self, x, u):
-        return N.array([[0, 0]])
+        return np.array([[0, 0]])
 
     def g(self, u_a, u_b):
-        return N.array([u_a[0] - 0, u_b[0] - 1])
+        return np.array([u_a[0] - 0, u_b[0] - 1])
 
     def dg(self, u_a, u_b):
-        return (N.array([[1, 0],
+        return (np.array([[1, 0],
                          [0, 0]]),
-                N.array([[0, 0],
+                np.array([[0, 0],
                          [1, 0]]))
 
 
@@ -208,12 +207,12 @@ class Problem2(TwoPointBVP):
 
     m = [1, 1, 1]
 
-    A = N.mat('0 1 2; 1 0 3; 2 3 4')
-    B = N.mat('1 2 3')
-    C = N.mat('4 5 6; 7 8 9')
+    A = np.mat('0 1 2; 1 0 3; 2 3 4')
+    B = np.mat('1 2 3')
+    C = np.mat('4 5 6; 7 8 9')
 
-    a_rhs = N.mat('1')
-    b_rhs = N.mat('2; 3')
+    a_rhs = np.mat('1')
+    b_rhs = np.mat('2; 3')
 
     a = 0
     b = 1
@@ -222,28 +221,28 @@ class Problem2(TwoPointBVP):
     homogenous = True
 
     def f(self, x, u):
-        return self.A * N.asmatrix(u).T
+        return self.A * np.asmatrix(u).T
 
     def df(self, x, u):
-        return N.asarray(self.A)
+        return np.asarray(self.A)
 
     def g(self, u_a, u_b):
-        return N.asarray(N.r_[self.B * N.asmatrix(u_a).T - self.a_rhs,
-                              self.C * N.asmatrix(u_b).T - self.b_rhs]).ravel()
+        return np.asarray(np.r_[self.B * np.asmatrix(u_a).T - self.a_rhs,
+                              self.C * np.asmatrix(u_b).T - self.b_rhs]).ravel()
 
     def dg(self, u_a, u_b):
-        return (N.asarray(N.r_[self.B, 0*self.C]),
-                N.asarray(N.r_[0*self.B, self.C]))
+        return (np.asarray(np.r_[self.B, 0*self.C]),
+                np.asarray(np.r_[0*self.B, self.C]))
 
     guess = None
 
     def exact_solution(self, x):
-        X = N.r_[self.B, self.C*N.linalg.expm(self.A)]
-        b = N.r_[self.a_rhs, self.b_rhs]
-        y = N.zeros((len(x), 3), self.dtype)
-        for i, xx in enumerate(N.asarray(x)):
-            sol = N.dot(N.linalg.expm(self.A * xx), N.linalg.solve(X, b))
-            y[i,:] = N.asarray(sol).ravel()
+        X = np.r_[self.B, self.C*linalg.expm(self.A)]
+        b = np.r_[self.a_rhs, self.b_rhs]
+        y = np.zeros((len(x), 3), self.dtype)
+        for i, xx in enumerate(np.asarray(x)):
+            sol = np.dot(linalg.expm(self.A * xx), linalg.solve(X, b))
+            y[i,:] = np.asarray(sol).ravel()
         return y
 
 class ComplexProblem2(Problem2):
@@ -252,15 +251,15 @@ class ComplexProblem2(Problem2):
 
     """
 
-    A = N.mat('0 1j 2; 1 0 2+3j; 2 3+1j 4')
-    B = N.mat('1 2j 0.5+3j')
-    C = N.mat('4 1+5j 6; 7 8j 9')
+    A = np.mat('0 1j 2; 1 0 2+3j; 2 3+1j 4')
+    B = np.mat('1 2j 0.5+3j')
+    C = np.mat('4 1+5j 6; 7 8j 9')
 
-    a_rhs = N.mat('1')
-    b_rhs = N.mat('2j; 3')
+    a_rhs = np.mat('1')
+    b_rhs = np.mat('2j; 3')
 
     is_complex = True
-    dtype = N.complex_
+    dtype = np.complex_
 
 class Problem3(TwoPointBVP):
     """
@@ -294,30 +293,30 @@ class Problem3(TwoPointBVP):
     vectorized = True
 
     def f(self, x, u):
-        return N.array([N.cosh(u[0])/N.sinh(u[0])**3])
+        return np.array([np.cosh(u[0])/np.sinh(u[0])**3])
 
     def df(self, x, u):
-        return N.array([[-(1 + 2*N.cosh(u[0])**2)/N.sinh(u[0])**4, 0*x]])
+        return np.array([[-(1 + 2*np.cosh(u[0])**2)/np.sinh(u[0])**4, 0*x]])
 
     def g(self, u_a, u_b):
         v = self.exact_solution(0)
-        return N.array([u_a[0] - v, u_b[0] - v])
+        return np.array([u_a[0] - v, u_b[0] - v])
 
     def dg(self, u_a, u_b):
-        return (N.array([[1, 0],
+        return (np.array([[1, 0],
                          [0, 0]]),
-                N.array([[0, 0],
+                np.array([[0, 0],
                          [1, 0]]))
 
     def guess(self, x):
-        z = N.zeros((2,) + N.asarray(x).shape)
-        dm = N.zeros((1,) + N.asarray(x).shape)
+        z = np.zeros((2,) + np.asarray(x).shape)
+        dm = np.zeros((1,) + np.asarray(x).shape)
         z[0] = 1
         return z, dm
 
     def exact_solution(self, x):
-        return N.arccosh(N.sqrt((1+self.C)/self.C)
-                         * N.cosh(N.sqrt(self.C)*(x - .5)))
+        return np.arccosh(np.sqrt((1+self.C)/self.C)
+                         * np.cosh(np.sqrt(self.C)*(x - .5)))
 
 class Problem4(TwoPointBVP):
     """
@@ -340,38 +339,38 @@ class Problem4(TwoPointBVP):
 
     C = 1.5
 
-    BCV = N.mat('0; 0; 0') + 1+N.exp(6)
-    MA = MB = N.mat('1 0 0; 0 1 0; 0 0 1')
+    BCV = np.mat('0; 0; 0') + 1+np.exp(6)
+    MA = MB = np.mat('1 0 0; 0 1 0; 0 0 1')
 
     def L(self, x):
-        return N.matrix([ [ 1 - 2*N.cos(2*x), 0, 1 + 2*N.sin(2*x)],
+        return np.matrix([ [ 1 - 2*np.cos(2*x), 0, 1 + 2*np.sin(2*x)],
                           [      0,          2,       0         ],
-                          [-1 + 2*N.sin(2*x), 0, 1 + 2*N.cos(2*x)]])
+                          [-1 + 2*np.sin(2*x), 0, 1 + 2*np.cos(2*x)]])
     def r(self, x):
-        return N.matrix([[(-1 + 2*N.cos(2*x) - 2*N.sin(2*x)) * N.exp(x)],
-                         [                                   - N.exp(x)],
-                         [( 1 - 2*N.cos(2*x) - 2*N.sin(2*x)) * N.exp(x)]])
+        return np.matrix([[(-1 + 2*np.cos(2*x) - 2*np.sin(2*x)) * np.exp(x)],
+                         [                                   - np.exp(x)],
+                         [( 1 - 2*np.cos(2*x) - 2*np.sin(2*x)) * np.exp(x)]])
 
     def f_homog(self, x, u):
-        return self.L(x) * N.asmatrix(u).T
+        return self.L(x) * np.asmatrix(u).T
 
     def f(self, x, u):
-        return self.L(x) * N.asmatrix(u).T + self.r(x)
+        return self.L(x) * np.asmatrix(u).T + self.r(x)
 
     def df(self, x, u):
         return self.L(x)
 
     def g(self, u_a, u_b):
-        return self.MA*N.asmatrix(u_a).T + self.MB*N.asmatrix(u_b).T - self.BCV
+        return self.MA*np.asmatrix(u_a).T + self.MB*np.asmatrix(u_b).T - self.BCV
 
     def dg(self, u_a, u_b):
         return (self.MA, self.MB)
 
     def guess(self, x):
-        return N.array([1, 1, 1]), N.array([0, 0, 0])
+        return np.array([1, 1, 1]), np.array([0, 0, 0])
 
     def exact_solution(self, x):
-        return N.transpose(N.array([N.exp(x)]*3))
+        return np.transpose(np.array([np.exp(x)]*3))
 
 
 class Problem5(TwoPointBVP):
@@ -389,7 +388,7 @@ class Problem5(TwoPointBVP):
 
     def f(self, t, u):
         u, v, w, x, y = u
-        ret = N.array([ .5*u*(w-u) / v,
+        ret = np.array([ .5*u*(w-u) / v,
                         -.5*(w-u),
                          (0.9 - 1000*(w-y) - 0.5*w*(w-u)) / x,
                          0.5*(w-u),
@@ -398,7 +397,7 @@ class Problem5(TwoPointBVP):
 
     def df(self, t, u):
         u, v, w, x, y = u
-        return N.array([[(.5*w-u)/v, -.5*u*(w-u) / v**2, .5*u/v, 0, 0],
+        return np.array([[(.5*w-u)/v, -.5*u*(w-u) / v**2, .5*u/v, 0, 0],
                         [.5, 0, -.5, 0, 0],
                         [.5*w/x,
                          0,
@@ -411,28 +410,28 @@ class Problem5(TwoPointBVP):
     def g(self, u_a, u_b):
         u_a, v_a, w_a, x_a, y_a = u_a
         u_b, v_b, w_b, x_b, y_b = u_b
-        return N.array([ u_a - 1, v_a - 1, w_a - 1, x_a - (-10), w_b - y_b])
+        return np.array([ u_a - 1, v_a - 1, w_a - 1, x_a - (-10), w_b - y_b])
 
     def dg(self, u_a, u_b):
         u_a, v_a, w_a, x_a, y_a = u_a
         u_b, v_b, w_b, x_b, y_b = u_b
-        return (N.array([[ 1, 0, 0, 0, 0],
+        return (np.array([[ 1, 0, 0, 0, 0],
                          [ 0, 1, 0, 0, 0],
                          [ 0, 0, 1, 0, 0],
                          [ 0, 0, 0, 1, 0],
                          [ 0, 0, 0, 0, 0]]),
-                N.array([[ 0, 0, 0, 0, 0],
+                np.array([[ 0, 0, 0, 0, 0],
                          [ 0, 0, 0, 0, 0],
                          [ 0, 0, 0, 0, 0],
                          [ 0, 0, 0, 0, 0],
                          [ 0, 0, 1, 0, -1]]))
 
     def guess(self, t):
-        return N.array([
+        return np.array([
             1, 1, -4.5*t*t + 8.91*t + 1, -10, -4.5*t*t + 9*t + 0.91]), \
-            N.array([0, 0, 0, 0, 0])
+            np.array([0, 0, 0, 0, 0])
 
-    solution = N.array([
+    solution = np.array([
     [ .0000, 1.00000e+00, 1.00000e+00, 1.00000e+00, -1.00000e+01, 9.67963e-01],
     [ .1000, 1.00701e+00, 9.93036e-01, 1.27014e+00, -9.99304e+00, 1.24622e+00],
     [ .2000, 1.02560e+00, 9.75042e-01, 1.47051e+00, -9.97504e+00, 1.45280e+00],
@@ -451,8 +450,8 @@ class Problem5(TwoPointBVP):
         Interpolate from Mattheij's data, since no real exact solution
         is available
         """
-        interp = N.interpolate.interp1d(self.solution[:,0],
-                                        self.solution[:,1:], axis=0)
+        interp = interpolate.interp1d(self.solution[:,0],
+                                      self.solution[:,1:], axis=0)
         return interp(t)
 
 class Problem6(TwoPointBVP):
@@ -470,33 +469,33 @@ class Problem6(TwoPointBVP):
     linear = False
 
     def f(self, x, u):
-        return N.array([(1 - 6*x**2 * u[3] - 6*x*u[2]) / x**3])
+        return np.array([(1 - 6*x**2 * u[3] - 6*x*u[2]) / x**3])
 
     def df(self, x, u):
-        return N.array([[0, 0, -6/x**2, -6/x]])
+        return np.array([[0, 0, -6/x**2, -6/x]])
 
     def g(self, u_a, u_b):
-        return N.array([u_a[0] - 0, u_a[2] - 0, u_b[0] - 0, u_b[2] - 0])
+        return np.array([u_a[0] - 0, u_a[2] - 0, u_b[0] - 0, u_b[2] - 0])
 
     def dg(self, u_a, u_b):
-        return (N.array([[1, 0, 0, 0],
+        return (np.array([[1, 0, 0, 0],
                          [0, 0, 1, 0],
                          [0, 0, 0, 0],
                          [0, 0, 0, 0]]),
-                N.array([[0, 0, 0, 0],
+                np.array([[0, 0, 0, 0],
                          [0, 0, 0, 0],
                          [1, 0, 0, 0],
                          [0, 0, 1, 0]]))
 
     def guess(self, x):
-        return N.array([0, 0, 0, 0]), N.array([0])
+        return np.array([0, 0, 0, 0]), np.array([0])
 
     def exact_solution(self, x):
-        sol = N.array([.25*(10*N.log(2)-3)*(1-x) + .5*(1/x+(3+x)*N.log(x)-x),
-                        -.25* (10*N.log(2)-3) + .5*(-1/x/x+N.log(x)+(3+x)/x-1),
+        sol = np.array([.25*(10*np.log(2)-3)*(1-x) + .5*(1/x+(3+x)*np.log(x)-x),
+                        -.25* (10*np.log(2)-3) + .5*(-1/x/x+np.log(x)+(3+x)/x-1),
                         .5 * (2/x**3 + 1/x - 3/x/x),
                         .5 * (-6/x**4 - 1/x/x + 6/x**3)])
-        return N.transpose(sol)
+        return np.transpose(sol)
 
 class Problem7(TwoPointBVP):
     """
@@ -516,13 +515,13 @@ class Problem7(TwoPointBVP):
     eps = 0.001
     dmu = eps
     eps4mu = eps**4/dmu
-    xt = N.sqrt(2 * (gamma - 1)/gamma )
+    xt = np.sqrt(2 * (gamma - 1)/gamma )
 
     vectorized = True
 
     def f(self, x, z):
         phi, dphi, psi, dpsi = z
-        return N.array([ phi/x/x - dphi/x
+        return np.array([ phi/x/x - dphi/x
                          + (phi - psi*(1-phi/x) - self.gamma*x*(1 - x*x/2))
                          / self.eps4mu,
 
@@ -530,8 +529,8 @@ class Problem7(TwoPointBVP):
 
     def df(self, x, z):
         phi, dphi, psi, dpsi = z
-        zero = N.zeros(x.shape)
-        return N.array([
+        zero = np.zeros(x.shape)
+        return np.array([
             [1/x/x +(1 + psi/x) / self.eps4mu, -1/x,
              -(1-phi/x) / self.eps4mu, zero],
             [(1 - phi/x) / self.dmu, zero, 1/x/x, -1/x]])
@@ -539,23 +538,23 @@ class Problem7(TwoPointBVP):
     def g(self, z_a, z_b):
         phi_a, dphi_a, psi_a, dpsi_a = z_a
         phi_b, dphi_b, psi_b, dpsi_b = z_b
-        return N.array([phi_a - 0,
+        return np.array([phi_a - 0,
                         psi_a - 0,
                         phi_b - 0,
                         dpsi_b - .3*psi_b + .7 - 0])
 
     def dg(self, z_a, z_b):
-        return (N.array([[1, 0, 0, 0],
+        return (np.array([[1, 0, 0, 0],
                          [0, 0, 1, 0],
                          [0, 0, 0, 0],
                          [0, 0, 0, 0]]),
-                N.array([[0, 0, 0, 0],
+                np.array([[0, 0, 0, 0],
                          [0, 0, 0, 0],
                          [1, 0, 0, 0],
                          [0, 0, -.3, 1]]))
         
     def guess(self, x):
-        zero = N.zeros(x.shape)
+        zero = np.zeros(x.shape)
         cons = self.gamma * x * (1 - .5*x*x)
         dcons = self.gamma * (1 - 1.5*x*x)
         d2cons = -3 * self.gamma * x
@@ -563,7 +562,7 @@ class Problem7(TwoPointBVP):
         i1 = (x < self.xt)
         i2 = (x >= self.xt)
 
-        z = N.empty([4, len(x)])
+        z = np.empty([4, len(x)])
         
         z[0, i1] = 2 * x[i1]
         z[1, i1] = 2
@@ -575,14 +574,14 @@ class Problem7(TwoPointBVP):
         z[2, i2] = -cons[i2]
         z[3, i2] = -dcons[i2]
         
-        return z, N.array([-d2cons, zero])
+        return z, np.array([-d2cons, zero])
 
     # This solution data has bad accuracy, since it is extracted from
     # a figure. I'm not sure whether it's useful to include this...
 
     # Solution I in the paper, extracted from Fig. 1
     # Corresponds to initial guess z = 0
-    solution_1 = N.array([
+    solution_1 = np.array([
         [0.000000000000,  0.000000000000000],
         [0.244547643166, -0.000371778511570],
         [0.33333245629,  -0.000506755423414],
@@ -603,7 +602,7 @@ class Problem7(TwoPointBVP):
 
     # Solution II in the paper, extracted from Fig. 1
     # Corresponds to the initial guess given above
-    solution_2 = N.array([
+    solution_2 = np.array([
         [0.000000000000,  0.000000000000000],
         [0.051583281807,  0.104820228119000],
         [0.115672319209,  0.235466038704000],
@@ -680,7 +679,7 @@ class Problem8(TwoPointBVP):
         G, dG, H, dH, d2H = z
         c = .5*(3 - self.n)
         L, s, n = self.L, self.s, self.n
-        return N.array([
+        return np.array([
             L**2 * s * (G - 1) - L * (c * H * dG + (n-1) * dH * G),
             L**3 * (1-G**2) + L**2 * s * dH - L * (c * H * d2H + n * dH**2)
             ])
@@ -688,9 +687,9 @@ class Problem8(TwoPointBVP):
     def df(self, x, z):
         G, dG, H, dH, d2H = z
         c = .5*(3 - self.n)
-        zero = N.zeros(x.shape)
+        zero = np.zeros(x.shape)
         L, s, n = self.L, self.s, self.n
-        return N.array([
+        return np.array([
             [-L * (n-1) * dH + L**2 * s,
              -L * c * H,
              -L * c * dG,
@@ -706,18 +705,18 @@ class Problem8(TwoPointBVP):
     def g(self, z_a, z_b):
         G_a, dG_a, H_a, dH_a, d2H_a = z_a
         G_b, dG_b, H_b, dH_b, d2H_b = z_b
-        return N.array([G_a - 0,
+        return np.array([G_a - 0,
                         H_a - 0,
                         dH_a - 0,
                         G_b - 1,
                         dH_b - 0])
     def dg(self, z_a, z_b):
-        return (N.array([[1, 0, 0, 0, 0],
+        return (np.array([[1, 0, 0, 0, 0],
                          [0, 0, 1, 0, 0],
                          [0, 0, 0, 1, 0],
                          [0, 0, 0, 0, 0],
                          [0, 0, 0, 0, 0]]),
-                N.array([[0, 0, 0, 0, 0],
+                np.array([[0, 0, 0, 0, 0],
                          [0, 0, 0, 0, 0],
                          [0, 0, 0, 0, 0],
                          [1, 0, 0, 0, 0],
@@ -725,15 +724,15 @@ class Problem8(TwoPointBVP):
 
     def guess(self, x):
         L = self.L
-        ex = N.exp(-L*x)
-        z = N.array([
+        ex = np.exp(-L*x)
+        z = np.array([
             1 - ex,
             L * ex,
             -L**2 * x**2 * ex,
             (L**3 *x**2 - 2 * L**2 * x) * ex,
             (-L**4 * x**2  + 4 * L**3 * x - 2 * L**2)*ex
             ])
-        dm = N.array([
+        dm = np.array([
             -L * z[1],
             (L**5*x*x - 6*L**4*x + 6*L**3) * ex
             ])
@@ -742,7 +741,7 @@ class Problem8(TwoPointBVP):
     # This solution data has bad accuracy, since it is extracted from
     # a figure. I'm not sure whether it's useful to include this...
 
-    solution_h = N.array([
+    solution_h = np.array([
         [0.00130714830711, 8.67489072589e-05],
         [0.00730070917232, -1.60886692126],
         [0.0128762980298, -2.33851198022],
@@ -833,7 +832,7 @@ class Problem8(TwoPointBVP):
     solution_h_xtol = 0.02 # figure has thick lines
     solution_h_ytol = 0.02
 
-    solution_g = N.array([
+    solution_g = np.array([
         [-7.88626429632e-06, 0.0165907285134],
         [0.00503932288535, 0.39852447995],
         [0.0127008286492, 0.780631729201],
@@ -892,7 +891,7 @@ class Problem9(TwoPointBVP):
 
     m = [2, 1]
     a = 0
-    b = N.pi
+    b = np.pi
     n_a = 2
     linear = False
     vectorized = True
@@ -901,42 +900,45 @@ class Problem9(TwoPointBVP):
 
     def f(self, x, z):
         u, du, a = z    
-        return N.array([-(a - 2*self.q*N.cos(2*x))*u, 0*x])
+        return np.array([-(a - 2*self.q*np.cos(2*x))*u, 0*x])
 
     def df(self, x, z):
         u, du, a = z    
-        return N.array([[-(a - 2*self.q*N.cos(2*x)), 0*x, -u],
+        return np.array([[-(a - 2*self.q*np.cos(2*x)), 0*x, -u],
                         [0*x, 0*x, 0*x]])
 
     def g(self, z_a, z_b):
         u_a, du_a, a_a = z_a
         u_b, du_b, a_b = z_b
-        return N.array([u_a - 1, du_a - 0, du_b - 0])
+        return np.array([u_a - 1, du_a - 0, du_b - 0])
 
     def dg(self, z_a, z_b):
-        return (N.array([[1,0,0],
+        return (np.array([[1,0,0],
                          [0,1,0],
                          [0,0,0]]),
-                N.array([[0,0,0],
+                np.array([[0,0,0],
                          [0,0,0],
                          [0,1,0]]))
     def guess(self, x):
-        z = N.zeros((3,) + N.asarray(x).shape)
-        dm = N.zeros((2,) + N.asarray(x).shape)
+        z = np.zeros((3,) + np.asarray(x).shape)
+        dm = np.zeros((2,) + np.asarray(x).shape)
         z[0] = 1
         return z, dm
     
     def exact_solution(self, x):
         m = 2
-        scale = N.special.mathieu_cem(m, self.q, 0)[0]
-        y, yp = N.special.mathieu_cem(m, self.q, 180/N.pi * x)
-        a = N.special.mathieu_a(m, self.q)
-        return N.array([y/scale, yp/scale, N.ones(x.shape)*a]).T
+        scale = special.mathieu_cem(m, self.q, 0)[0]
+        y, yp = special.mathieu_cem(m, self.q, 180/np.pi * x)
+        a = special.mathieu_a(m, self.q)
+        return np.array([y/scale, yp/scale, np.ones(x.shape)*a]).T
 
 
 ###############################################################################
 
-test_doc = get_doctest_checker([__import__(__name__)])
+class test_doc(TestCase):
+    def test_all(self):
+        assert doctest.testmod(__import__(__name__), verbose=0)[0] == 0
 
-if __name__ == "__main__":
-    NumpyTest().run()
+if __name__ == '__main__':
+    import unittest
+    unittest.main()

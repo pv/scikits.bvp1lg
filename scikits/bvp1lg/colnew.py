@@ -59,7 +59,7 @@ This may make the problem non-linear.
     http://www.netlib.org/ode/colnew.f
 """
 
-import scipy as _N
+import numpy as np
 import _colnew
 import jacobian as _jacobian
 import error as _error
@@ -93,7 +93,7 @@ class Solution(object):
             broadcast to ``x``. Shape of the returned array
             is x.shape + (mstar,).
         """
-        x = _N.asarray(x)
+        x = np.asarray(x)
         y = _colnew.appsln_many(x.flat, self.fspace, self.ispace).T
         y.shape = x.shape + (self.mstar,)
         return y
@@ -358,7 +358,7 @@ def _colnew_solve(boundary_points,
     ncomp = len(degrees)
     mstar = int(sum(degrees))
 
-    if _N.sometrue(map(lambda x: x <= 0 or x > 4, degrees)):
+    if np.sometrue(map(lambda x: x <= 0 or x > 4, degrees)):
         raise ValueError("Invalid value for ``degrees``")
 
     if ncomp <= 0 or mstar <= 0:
@@ -381,7 +381,7 @@ def _colnew_solve(boundary_points,
         extra_fixed_points = []
     
     if tolerances == None:
-        tolerances = _N.zeros([mstar])
+        tolerances = np.zeros([mstar])
 
     if left == None:
         left = min(boundary_points)
@@ -403,21 +403,21 @@ def _colnew_solve(boundary_points,
 
     ## Allocate work space
     
-    ispace = _N.empty([nispace], _N.int32)
-    fspace = _N.empty([nfspace], _N.float64)
+    ispace = np.empty([nispace], np.int32)
+    fspace = np.empty([nfspace], np.float64)
 
     ## Boundary points
     
     if len(boundary_points) != mstar:
         raise ValueError("Invalid number of boundary points")
 
-    zeta = _N.asarray(boundary_points, _N.float64)
+    zeta = np.asarray(boundary_points, np.float64)
     zeta.sort()
     
-    if not _N.alltrue(zeta == boundary_points):
+    if not np.alltrue(zeta == boundary_points):
         raise ValueError("Invalid ordering of boundary points")
 
-    if not _N.alltrue((zeta >= left) & (zeta <= right)):
+    if not np.alltrue((zeta >= left) & (zeta <= right)):
         raise ValueError("Some boundary points outside range [left, right]")
 
     ## Fixed points in the mesh
@@ -425,7 +425,7 @@ def _colnew_solve(boundary_points,
     fixpnt = list(boundary_points) + list(extra_fixed_points)
     fixpnt.sort()
     fixpnt = filter(lambda x: x > left and x < right, fixpnt)
-    fixpnt = _N.unique(_N.array(fixpnt, _N.float_).ravel())
+    fixpnt = np.unique(np.array(fixpnt, np.float_).ravel())
 
     ## Verbosity
 
@@ -439,14 +439,14 @@ def _colnew_solve(boundary_points,
     if len(tolerances) != mstar:
         raise ValueError("Invalid number of tolerances")
 
-    tolerances = _N.asarray(tolerances, _N.float64).ravel()
-    ltol = _N.where(tolerances > 0)[0]
+    tolerances = np.asarray(tolerances, np.float64).ravel()
+    ltol = np.where(tolerances > 0)[0]
     tol = tolerances[ltol]
     ltol += 1 # Fortran-style indexing
     
     ## Parameters to COLNEW
     
-    ipar = _N.array([
+    ipar = np.array([
         1 - int(is_linear),  # is the problem nonlinear?
         collocation_points,  # no. collocation points per subinterval
         10,                  # no. subintervals in initial mesh
@@ -458,10 +458,10 @@ def _colnew_solve(boundary_points,
         0,                   # initial guess type (see below)
         problem_regularity,  # problem regularity
         len(fixpnt),         # number of additional fixed points
-        ], _N.int32)
+        ], np.int32)
 
     if len(fixpnt) == 0:
-        fixpnt = _N.array([0], _N.float64)
+        fixpnt = np.array([0], np.float64)
 
     ## Initial guess
 
@@ -528,20 +528,20 @@ def _colnew_solve(boundary_points,
             u, dm = guess_func(float(xx))
             us.append(u)
             dms.append(dm)
-        return _N.transpose(_N.asarray(us)), _N.transpose(_N.asarray(dms))
+        return np.transpose(np.asarray(us)), np.transpose(np.asarray(dms))
 
     def vectorized_f(x, u):
         fs = []
         for i, xx in enumerate(x):
             fs.append(fsub(float(xx), u[:,i]))
-        return _N.transpose(_N.asarray(fs))
+        return np.transpose(np.asarray(fs))
 
     def vectorized_df(x, u):
         dfs = []
         for i, xx in enumerate(x):
             dfs.append(dfsub(float(xx), u[:,i]))
-        dfs = _N.asarray(dfs)
-        return _N.swapaxes(_N.swapaxes(dfs, 0, 2), 0, 1)
+        dfs = np.asarray(dfs)
+        return np.swapaxes(np.swapaxes(dfs, 0, 2), 0, 1)
 
     if vectorized:
         vectorized_guess = guess_func
@@ -551,24 +551,24 @@ def _colnew_solve(boundary_points,
     ## Numerical evaluation of Jacobians, if needed
 
     def numerical_dg(z):
-        zero = _N.zeros([z.shape[0]])
+        zero = np.zeros([z.shape[0]])
         # Surprisingly easy: numpy's indexing & broadcasting rocks.
         # Extra reshape needed for gsubs returning matrices.
         return _jacobian.jacobian(
-            lambda u: _N.reshape(gsub(z + u[:,None]), [mstar]),
+            lambda u: np.reshape(gsub(z + u[:,None]), [mstar]),
             zero)
 
     if dgsub == None:
         dgsub = numerical_dg
 
     def numerical_df(x, z):
-        zero = _N.zeros(z.shape[0])
+        zero = np.zeros(z.shape[0])
         # Extra reshape needed for fsubs returning matrices.
         df = _jacobian.jacobian(
-            lambda u: _N.reshape(vectorized_f(x, z + u[:,None]),
+            lambda u: np.reshape(vectorized_f(x, z + u[:,None]),
                                  [ncomp, x.shape[0]]),
             zero)
-        return _N.swapaxes(df, 1, 2) # x-axis comes z-axis
+        return np.swapaxes(df, 1, 2) # x-axis comes z-axis
 
     if dfsub == None:
         vectorized_df = numerical_df
@@ -637,7 +637,7 @@ def _colnew_enter():
     for j, com in enumerate(_colnew_commons):
         stack_sub = {}
         for name in dir(com):
-            stack_sub[name] = _N.array(getattr(com, name), copy=True)
+            stack_sub[name] = np.array(getattr(com, name), copy=True)
         stack_entry.append(stack_sub)
     _colnew_stack.append(stack_entry)
 
@@ -682,16 +682,16 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
 
     for k in range(5):
         if not vectorized:
-            x = xmin + (xmax - xmin) * _N.rand()
-            _fsub =  lambda u: _N.squeeze(fsub(x, u))
-            _dfsub = lambda u: _N.squeeze(dfsub(x, u))
+            x = xmin + (xmax - xmin) * np.random.rand()
+            _fsub =  lambda u: np.squeeze(fsub(x, u))
+            _dfsub = lambda u: np.squeeze(dfsub(x, u))
         else:
-            x = xmin + (xmax - xmin) * _N.rand(1)
-            _fsub  = lambda u: _N.squeeze(_N.asarray(
-                _N.reshape(fsub(x, _N.reshape(u, [mstar, 1])),
+            x = xmin + (xmax - xmin) * np.random.rand(1)
+            _fsub  = lambda u: np.squeeze(np.asarray(
+                np.reshape(fsub(x, np.reshape(u, [mstar, 1])),
                            [ncomp])))
-            _dfsub = lambda u: _N.squeeze(_N.asarray(
-                _N.reshape(dfsub(x, _N.reshape(u, [mstar, 1])),
+            _dfsub = lambda u: np.squeeze(np.asarray(
+                np.reshape(dfsub(x, np.reshape(u, [mstar, 1])),
                            [ncomp, mstar])))
 
         if not _jacobian.check_jacobian(mstar, _fsub, _dfsub, **kw):
@@ -705,12 +705,12 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
     # and dgsub.
     #
     
-    indep = list(_N.unique(boundary_points))
+    indep = list(np.unique(boundary_points))
     indep_map = [indep.index(p) for p in boundary_points]
 
     def _get_u(z):
-        z = _N.reshape(z, [mstar, len(indep)])
-        u = _N.empty([mstar, mstar])
+        z = np.reshape(z, [mstar, len(indep)])
+        u = np.empty([mstar, mstar])
         for i, j in enumerate(indep_map):
             u[:,i] = z[:,j]
         return u
@@ -721,7 +721,7 @@ def check_jacobians(boundary_points, degrees, fsub, gsub, dfsub, dgsub,
         
     def _dgsub(z):
         dg = dgsub(_get_u(z))
-        d = _N.zeros([mstar, mstar, len(indep)])
+        d = np.zeros([mstar, mstar, len(indep)])
         for i, j in enumerate(indep_map):
             d[i,:,j] = dg[i, :]
         d.shape = (mstar, mstar*len(indep))

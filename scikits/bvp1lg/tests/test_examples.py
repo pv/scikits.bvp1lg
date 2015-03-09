@@ -5,17 +5,16 @@ Tests examples
 """
 from numpy.testing import *
 
-set_package_path()
-import bvp.examples
-restore_path()
+import scikits.bvp1lg.examples as examples
 
-set_local_path()
 from testutils import *
-restore_path()
 
-test_doc = get_doctest_checker([bvp.examples])
+class test_doc(TestCase):
+    def test_all(self):
+        assert doctest.testmod(examples, verbose=0)[0] == 0
 
 ###############################################################################
 
-if __name__ == "__main__":
-    NumpyTest().run()
+if __name__ == '__main__':
+    import unittest
+    unittest.main()

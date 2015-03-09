@@ -24,12 +24,12 @@ equation:
     v'(x) = x**(nu+1) * u(x)                             for 1 <= x <= 10
     v(5)  = 5**(nu+1) * J_{nu+1}(5)
 
-First import scipy and bvp
+First import numpy and bvp
 
-    >>> import scipy as N
-    >>> N.pkgload('special')
+    >>> import numpy as np
+    >>> import scipy.special as special
 
-    >>> import bvp.colnew
+    >>> import scikits.bvp1lg.colnew as colnew
 
 Then specify the equation system
 
@@ -38,7 +38,7 @@ Then specify the equation system
     >>> degrees = [2, 1]
     >>> def fsub(x, z):
     ...     u, du, v = z     # it's neat to name the variables
-    ...     return N.array([-du/x + (nu**2/x**2 - 1)*u, x**(nu+1) * u])
+    ...     return np.array([-du/x + (nu**2/x**2 - 1)*u, x**(nu+1) * u])
 
 Here, ``fsub`` is vectorized over ``x``: ``x`` has shape (nx,) and
 ``z`` shape ``(mstar, nx)``, where ``mstar = 3`` is the number of free
@@ -49,8 +49,8 @@ The partial derivatives wrt. variables can be provided, to gain speed
 
     >>> def dfsub(x, z):
     ...     u, du, v = z
-    ...     zero = N.zeros(x.shape)
-    ...     return N.array([[(nu**2/x**2 - 1), -1/x, zero],
+    ...     zero = np.zeros(x.shape)
+    ...     return np.array([[(nu**2/x**2 - 1), -1/x, zero],
     ...                     [       x**(nu+1), zero, zero]])
 
 ``zero`` is needed due to vectorizing.
@@ -63,9 +63,9 @@ and the boundary conditions given in form
 
     >>> def gsub(z):
     ...     u, du, v = z
-    ...     return N.array([u[0] - N.special.jv(nu,   1),
-    ...                     v[1] - 5**(nu+1) * N.special.jv(nu+1, 5),
-    ...                     u[2] - N.special.jv(nu,   10)])
+    ...     return np.array([u[0] - special.jv(nu,   1),
+    ...                     v[1] - 5**(nu+1) * special.jv(nu+1, 5),
+    ...                     u[2] - special.jv(nu,   10)])
 
 Here, ``z[i,j]`` is the value of variable ``i`` at boundary point
 ``j``.  Note that only separated boundary conditions are supported:
@@ -74,7 +74,7 @@ condition at point ``j`` may only refer to ``z[:,j]``.
 Again, the partial derivatives can be provided
 
     >>> def dgsub(z):
-    ...     return N.array([[1, 0, 0],
+    ...     return np.array([[1, 0, 0],
     ...                     [0, 0, 1],
     ...                     [1, 0, 0]])
 
@@ -84,7 +84,7 @@ condition at boundary point ``i`` versus the three variables.
 Then solve the problem (it is linear)
 
     >>> tol = [1e-5, 0, 1e-5]
-    >>> solution = bvp.colnew.solve(
+    >>> solution = colnew.solve(
     ...     boundary_points, degrees, fsub, gsub,
     ...     dfsub=dfsub, dgsub=dgsub,
     ...     is_linear=True, tolerances=tol,
@@ -98,14 +98,14 @@ from the default 100 to 300. The actual final mesh has 117 points:
 
 Finally, check that the ``u`` variable indeed is ``J_nu(x)``
 
-    >>> x = N.linspace(1, 10, 101)
-    >>> N.allclose(solution(x)[:,0], N.special.jv(nu, x),
+    >>> x = np.linspace(1, 10, 101)
+    >>> np.allclose(solution(x)[:,0], special.jv(nu, x),
     ...            rtol=1e-4, atol=1e-8)
     True
 
 Due to a property of the Bessel functions, ``v(x) = x**(nu+1) J_{nu+1}(x)``
 
-    >>> N.allclose(solution(x)[:,2], x**(nu+1)*N.special.jv(nu+1, x),
+    >>> np.allclose(solution(x)[:,2], x**(nu+1)*special.jv(nu+1, x),
     ...            rtol=1e-4, atol=1e-8)
     True
 

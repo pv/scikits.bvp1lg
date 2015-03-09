@@ -3,7 +3,7 @@
 """
 Numerical approximations to Jacobians of functions
 """
-import scipy as _N
+import numpy as np
 
 def jacobian(f, u, eps=1e-6):
     """Evaluate partial derivatives of f(u) numerically.
@@ -14,21 +14,21 @@ def jacobian(f, u, eps=1e-6):
     :returns:
         (*f.shape, *u.shape) array ``df``, where df[i,j] ~= (d f_i / u_j)(u)
     """
-    f0 = _N.asarray(f(u)) # asarray: because of matrices
+    f0 = np.asarray(f(u)) # asarray: because of matrices
 
     u_shape = u.shape
-    nu = _N.prod(u_shape)
+    nu = np.prod(u_shape)
 
     f_shape = f0.shape
-    nf = _N.prod(f_shape)
+    nf = np.prod(f_shape)
 
-    df = _N.empty([nf, nu], dtype=u.dtype)
+    df = np.empty([nf, nu], dtype=u.dtype)
     
     for k in range(nu):
-        du = _N.zeros(nu, dtype=u.dtype)
+        du = np.zeros(nu, dtype=u.dtype)
         du[k] = max(eps*abs(u.flat[k]), eps)
-        f1 = _N.asarray(f(u + _N.reshape(du, u_shape)))
-        df[:,k] = _N.reshape((f1 - f0) / eps, [nf])
+        f1 = np.asarray(f(u + np.reshape(du, u_shape)))
+        df[:,k] = np.reshape((f1 - f0) / eps, [nf])
 
     df.shape = f_shape + u_shape
     return df
@@ -70,18 +70,18 @@ def check_jacobian(N, f, df, bounds=None,
     
     ## Check.
 
-    bounds = _N.asarray(bounds)
+    bounds = np.asarray(bounds)
     match_seen = False
     
     for k in range(times):
-        u  = bounds[:,0] + _N.rand(N) * (bounds[:,1] - bounds[:,0])
-        z  = _N.asarray(df(u))
+        u  = bounds[:,0] + np.random.rand(N) * (bounds[:,1] - bounds[:,0])
+        z  = np.asarray(df(u))
         z2 = jacobian(f, u, eps)
         
-        if _N.linalg.norm(z - z2) < atol + .5*rtol*(_N.linalg.norm(z) + _N.linalg.norm(z2)):
+        if np.linalg.norm(z - z2) < atol + .5*rtol*(np.linalg.norm(z) + np.linalg.norm(z2)):
             match_seen = True
         else:
-            if _N.alltrue(_N.isfinite(z)) and _N.alltrue(_N.isfinite(z2)):
+            if np.alltrue(np.isfinite(z)) and np.alltrue(np.isfinite(z2)):
                 return False
 
     if not match_seen:

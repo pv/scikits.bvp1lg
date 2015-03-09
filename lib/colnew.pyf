@@ -59,7 +59,7 @@ int get_mstar(int ncomp, int *m) {
 
        use _colnew__user__routines
 
-       integer, check(ncomp > 0 && ncomp <= 20), intent(in) :: ncomp
+       integer, check(ncomp > 0 && ncomp <= 256), intent(in) :: ncomp
        integer, dimension(ncomp), intent(in) :: m
        
        double precision :: aleft, aright
@@ -85,10 +85,10 @@ int get_mstar(int ncomp, int *m) {
        !! common blocks
        real*8 dimension(7) :: rho
        real*8 dimension(49) :: coef
-       integer dimension(120) :: mt
+       integer dimension(256) :: mt
        real*8 :: precis, tleft, tright
-       real*8 dimension(240) :: ttl, wgtmsh, wgterr, tolin, root, tzeta
-       integer dimension(240) :: jtol, lttol
+       real*8 dimension(512) :: ttl, wgtmsh, wgterr, tolin, root, tzeta
+       integer dimension(512) :: jtol, lttol
        integer :: k, nc, mstar, kd, mmax, iout, iprint, mshflg, mshnum, &
             mshlmt, mshalt, ntol, izeta, idum, n, nold, nmax, nz, ndmz, &
             nonlin, iter, limit, icare, iguess

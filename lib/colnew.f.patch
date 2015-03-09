@@ -52,7 +52,7 @@
  C     or when solving large scale sparse jacobian problems.
  C
  C----------------------------------------------------------------------
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION M(1), ZETA(1), IPAR(1), LTOL(1), TOL(1), DUMMY(1),
@@ -81,7 +81,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION XI(1), XIOLD(1), Z(1), DMZ(1), RHS(1)
@@ -115,7 +115,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION Z(MSTAR,1), SCALE(MSTAR,1), DSCALE(KD,1)
@@ -132,7 +132,7 @@
  C                     error estimate.
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION D1(40), D2(40), SLOPE(1), ACCUM(1), VALSTR(1)
@@ -162,7 +162,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION RHO(7), COEF(K,1), CNSTS1(28), CNSTS2(28), DUMMY(1)
@@ -183,7 +183,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION ERR(40), ERREST(40), DUMMY(1)
@@ -209,7 +209,7 @@
  C             = 0 otherwise
  C
  C*********************************************************************
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION  Z(1), DMZ(1), DELZ(1), DELDMZ(1), XI(1), XIOLD(1)
@@ -622,7 +622,7 @@
  C      dg     - the derivatives of the side condition.
  C
  C**********************************************************************
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION GI(NROW,1), ZVAL(1), DGZ(1), DG(40)
@@ -659,7 +659,7 @@
  C      jcomp  - counter for the component being dealt with.
  C
  C**********************************************************************
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION WI(KD,1), VI(KD,1), ZVAL(1), DMZO(1), DF(NCOMP,1)
@@ -697,7 +697,7 @@
  C      irow   - the first row in gi to be used for equations.
  C
  C**********************************************************************
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
        DIMENSION HB(7,4), BASM(5)
@@ -748,7 +748,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION ZVAL(1), DMVAL(1), XI(1), M(1), A(7,1), DM(7)
@@ -771,7 +771,7 @@
  C
  C**********************************************************************
  C
-+      PARAMETER (MAXMSTAR = 240, MAXNCOMP = 120)
++      PARAMETER (MAXMSTAR = 512, MAXNCOMP = 256)
 +C
        IMPLICIT REAL*8 (A-H,O-Z)
 -      DIMENSION UHIGH(1), DMZ(1)

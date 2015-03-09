@@ -37,4 +37,8 @@ with::
 
     python setup.py test
 
+or
+
+    nosetests scikits/bvp1lg
+
 All tests should pass without failures.

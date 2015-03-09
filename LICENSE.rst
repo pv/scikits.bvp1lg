@@ -1,5 +1,8 @@
+License information
+===================
+
 Caveat
-======
+------
 
 The following codes are from www.netlib.org and have varying licensing
 conditions:
@@ -41,7 +44,7 @@ conditions:
 
 
 License of the Python codes (scikits/*)
-=======================================
+---------------------------------------
 
 Copyright (c) 2006 Pauli Virtanen.
 

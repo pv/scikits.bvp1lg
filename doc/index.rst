@@ -4,6 +4,8 @@ scikits.bvp1lg
 
 .. automodule:: scikits.bvp1lg
 
+* :doc:`License information <license>`
+
 .. toctree::
    :hidden:
    :maxdepth: 1
@@ -12,4 +14,5 @@ scikits.bvp1lg
    mus
    jacobian
    examples
+   license
 

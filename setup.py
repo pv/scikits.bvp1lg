@@ -27,7 +27,7 @@ codes from netlib.org.
 """
 MAINTAINER          = 'Pauli Virtanen',
 MAINTAINER_EMAIL    = 'pav@iki.fi',
-URL                 = 'http://pv.github.io/scikits.bvp1lg'
+URL                 = 'https://pv.github.io/scikits.bvp1lg'
 LICENSE             = 'Noncommercial, see LICENSE.txt'
 DOWNLOAD_URL        = 'https://pypi.python.org/pypi/scikits.bvp1lg'
 VERSION             = '0.2.5.dev'

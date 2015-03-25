@@ -26,7 +26,10 @@ Contents
 """
 from __future__ import absolute_import, division, print_function
 
-from .version import __version__
+try:
+    from .version import __version__
+except ImportError:
+    __version__ = "unknown"
 
 from .error import *
 from . import colnew

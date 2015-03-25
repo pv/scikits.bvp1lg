@@ -2,5 +2,5 @@ include MANIFEST.in
 include *.rst
 include setup.py
 recursive-include scikits *.py
-include lib/dgefa.f lib/dgesl.f lib/*.pyf lib/*.patch
+include lib/dgefa.f lib/dgesl.f lib/*.pyf lib/*.patch lib/patchit.py
 exclude lib/colnew.f lib/mus1.f lib/mus2.f lib/mus3.f

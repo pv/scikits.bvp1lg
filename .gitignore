@@ -9,6 +9,7 @@ lib/mus1.f
 lib/mus2.f
 lib/mus3.f
 lib/*.orig
+scikits/bvp1lg/version.py
 dist/*
 build/*
 \#*

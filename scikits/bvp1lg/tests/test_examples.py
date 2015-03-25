@@ -12,4 +12,6 @@ import scikits.bvp1lg.examples as examples
 from testutils import *
 
 def test_doctests():
-    assert doctest.testmod(examples, verbose=0)[0] == 0
+    import matplotlib
+    matplotlib.use('Agg')
+    assert doctest.testmod(examples, verbose=0, optionflags=doctest.ELLIPSIS)[0] == 0

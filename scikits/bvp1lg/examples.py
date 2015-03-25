@@ -123,6 +123,7 @@ def bessel_colnew():
        >>> import matplotlib.pyplot as plt
        >>> plt.plot(solution.mesh, solution(solution.mesh)[:,2], '.',
        ...          x, x**(nu+1)*special.jv(nu+1, x), '-')
+       [...]
        >>> plt.show()
     """
     _run_func(bessel_colnew)

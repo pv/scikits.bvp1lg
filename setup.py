@@ -27,9 +27,9 @@ codes from netlib.org.
 """
 MAINTAINER          = 'Pauli Virtanen',
 MAINTAINER_EMAIL    = 'pav@iki.fi',
-URL                 = 'http://www.iki.fi/pav/software/bvp'
+URL                 = 'http://pv.github.io/scikits.bvp1lg'
 LICENSE             = 'Noncommercial, see LICENSE.txt'
-DOWNLOAD_URL        = URL
+DOWNLOAD_URL        = 'https://pypi.python.org/pypi/scikits.bvp1lg'
 VERSION             = '0.2.5.dev'
 
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     from numpy.distutils.core import setup
     setup(configuration=configuration,
           name=DISTNAME,
-          install_requires=["numpy >= 1.0", "scipy >= 0.5"],
+          install_requires=["numpy >= 1.5", "scipy >= 0.9"],
           namespace_packages=['scikits'],
           packages=setuptools.find_packages(),
           include_package_data=True,

@@ -21,8 +21,7 @@ def configuration(parent_package='', top_path=None):
                                   '../../lib/colnew.f',
                                   '../../lib/dgesl.f',
                                   '../../lib/dgefa.f'],
-                         libraries=blas_info['libraries'],
-                         library_dirs=blas_info['library_dirs'])
+                         **blas_info)
     config.add_extension('_mus',
                          sources=['../../lib/mus.pyf',
                                   '../../lib/mus1.f',
@@ -30,8 +29,7 @@ def configuration(parent_package='', top_path=None):
                                   '../../lib/mus3.f',
                                   '../../lib/dgesl.f',
                                   '../../lib/dgefa.f'],
-                         libraries=blas_info['libraries'],
-                         library_dirs=blas_info['library_dirs'])
+                         **blas_info)
 
     config.add_data_dir('tests')
 

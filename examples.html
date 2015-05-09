@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &mdash; scikits.bvp1lg 0.2.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/fixup.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="scikits.bvp1lg 0.2.8 documentation" href="index.html" />
+    <link rel="next" title="License information" href="license.html" />
+    <link rel="prev" title="jacobian" href="jacobian.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="jacobian.html" title="jacobian"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-scikits.bvp1lg.examples"></span><div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This module contains example(s) of solving boundary value problems
+using the bvp package.</p>
+<dl class="function">
+<dt id="scikits.bvp1lg.examples.bessel_colnew">
+<tt class="descclassname">scikits.bvp1lg.examples.</tt><tt class="descname">bessel_colnew</tt><big>(</big><big>)</big><a class="headerlink" href="#scikits.bvp1lg.examples.bessel_colnew" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Examples</p>
+<p>Let&#8217;s use colnew to solve a multi-point boundary value problem for the
+Bessel differential equation and another coupled differential
+equation:</p>
+<div class="highlight-python"><div class="highlight"><pre>u&#39;&#39;(x) = -u&#39;(x) / x + (nu**2/x**2 - 1) * u(x)        for 1 &lt;= x &lt;= 10
+u(1)  = J_{nu}(1)
+u(10) = J_{nu}(10)
+
+v&#39;(x) = x**(nu+1) * u(x)                             for 1 &lt;= x &lt;= 10
+v(5)  = 5**(nu+1) * J_{nu+1}(5)
+</pre></div>
+</div>
+<p>First import numpy and bvp</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scipy.special</span> <span class="kn">as</span> <span class="nn">special</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">scikits.bvp1lg.colnew</span> <span class="kn">as</span> <span class="nn">colnew</span>
+</pre></div>
+</div>
+<p>Then specify the equation system</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">nu</span> <span class="o">=</span> <span class="mf">3.4123</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">degrees</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">fsub</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">u</span><span class="p">,</span> <span class="n">du</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">z</span>     <span class="c"># it&#39;s neat to name the variables</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">du</span><span class="o">/</span><span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">nu</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="p">,</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Here, <tt class="docutils literal"><span class="pre">fsub</span></tt> is vectorized over <tt class="docutils literal"><span class="pre">x</span></tt>: <tt class="docutils literal"><span class="pre">x</span></tt> has shape (nx,) and
+<tt class="docutils literal"><span class="pre">z</span></tt> shape <tt class="docutils literal"><span class="pre">(mstar,</span> <span class="pre">nx)</span></tt>, where <tt class="docutils literal"><span class="pre">mstar</span> <span class="pre">=</span> <span class="pre">3</span></tt> is the number of free
+variables: <tt class="docutils literal"><span class="pre">u</span></tt>, <tt class="docutils literal"><span class="pre">du</span></tt> and <tt class="docutils literal"><span class="pre">v</span></tt>. <tt class="docutils literal"><span class="pre">fsub</span></tt> should return a vector of
+shape <tt class="docutils literal"><span class="pre">(ncomp,</span> <span class="pre">nx)</span></tt> where <tt class="docutils literal"><span class="pre">ncomp</span></tt> is the number of equations.</p>
+<p>The partial derivatives wrt. variables can be provided, to gain speed</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dfsub</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">u</span><span class="p">,</span> <span class="n">du</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">z</span>
+<span class="gp">... </span>    <span class="n">zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[(</span><span class="n">nu</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">],</span>
+<span class="gp">... </span>                    <span class="p">[</span>       <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">zero</span><span class="p">,</span> <span class="n">zero</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">zero</span></tt> is needed due to vectorizing.</p>
+<p>The boundary points must be sorted:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">boundary_points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>and the boundary conditions given in form</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">gsub</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">u</span><span class="p">,</span> <span class="n">du</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">z</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span>   <span class="mi">1</span><span class="p">),</span>
+<span class="gp">... </span>                    <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span><span class="o">**</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="gp">... </span>                    <span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span>   <span class="mi">10</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>Here, <tt class="docutils literal"><span class="pre">z[i,j]</span></tt> is the value of variable <tt class="docutils literal"><span class="pre">i</span></tt> at boundary point
+<tt class="docutils literal"><span class="pre">j</span></tt>.  Note that only separated boundary conditions are supported:
+condition at point <tt class="docutils literal"><span class="pre">j</span></tt> may only refer to <tt class="docutils literal"><span class="pre">z[:,j]</span></tt>.</p>
+<p>Again, the partial derivatives can be provided</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dgsub</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="gp">... </span>                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>                    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">dgsub(z)[i,:]</span></tt> contains the partial derivative of the boundary
+condition at boundary point <tt class="docutils literal"><span class="pre">i</span></tt> versus the three variables.</p>
+<p>Then solve the problem (it is linear)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tol</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">solution</span> <span class="o">=</span> <span class="n">colnew</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">boundary_points</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">fsub</span><span class="p">,</span> <span class="n">gsub</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">dfsub</span><span class="o">=</span><span class="n">dfsub</span><span class="p">,</span> <span class="n">dgsub</span><span class="o">=</span><span class="n">dgsub</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">is_linear</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">tolerances</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">vectorized</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">maximum_mesh_size</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To satisfy the tolerances, we needed to increase the maximum mesh size
+from the default 100 to 300. The actual final mesh has 117 points:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">solution</span><span class="o">.</span><span class="n">nmesh</span>
+<span class="go">117</span>
+</pre></div>
+</div>
+<p>Finally, check that the <tt class="docutils literal"><span class="pre">u</span></tt> variable indeed is <tt class="docutils literal"><span class="pre">J_nu(x)</span></tt></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">solution</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span>
+<span class="gp">... </span>           <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Due to a property of the Bessel functions, <tt class="docutils literal"><span class="pre">v(x)</span> <span class="pre">=</span> <span class="pre">x**(nu+1)</span> <span class="pre">J_{nu+1}(x)</span></tt></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">solution</span><span class="p">(</span><span class="n">x</span><span class="p">)[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span>
+<span class="gp">... </span>           <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Note that in this case the algorithm slightly underestimated the
+errors: the solutions do not satisfy the specified tolerance 1e-5,
+although they satisfy the tolerance 1e-4.</p>
+<p>Finally, we can plot the result:</p>
+<blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">mesh</span><span class="p">,</span> <span class="n">solution</span><span class="p">(</span><span class="n">solution</span><span class="o">.</span><span class="n">mesh</span><span class="p">)[:,</span><span class="mi">2</span><span class="p">],</span> <span class="s">&#39;.&#39;</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">special</span><span class="o">.</span><span class="n">jv</span><span class="p">(</span><span class="n">nu</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="s">&#39;-&#39;</span><span class="p">)</span>
+<span class="go">[...]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure">
+<img alt="_images/examples-1.png" src="_images/examples-1.png" />
+</div>
+</div></blockquote>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="jacobian.html"
+                        title="previous chapter">jacobian</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="license.html"
+                        title="next chapter">License information</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/examples.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="jacobian.html" title="jacobian"
+             >previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Pauli Virtanen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

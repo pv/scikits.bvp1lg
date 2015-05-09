@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>jacobian &mdash; scikits.bvp1lg 0.2.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/fixup.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="scikits.bvp1lg 0.2.8 documentation" href="index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="mus" href="mus.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mus.html" title="mus"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-scikits.bvp1lg.jacobian"></span><div class="section" id="jacobian">
+<h1>jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h1>
+<p>Numerical approximations to Jacobians of functions</p>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scikits.bvp1lg.jacobian.check_jacobian">
+<tt class="descclassname">scikits.bvp1lg.jacobian.</tt><tt class="descname">check_jacobian</tt><big>(</big><em>N</em>, <em>f</em>, <em>df</em>, <em>bounds=None</em>, <em>eps=1e-06</em>, <em>rtol=0.001</em>, <em>atol=1e-08</em>, <em>times=None</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.jacobian.check_jacobian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that <tt class="docutils literal"><span class="pre">df</span></tt> is a partial derivative of <tt class="docutils literal"><span class="pre">f</span></tt>.</p>
+<p>This is done by computing (f(u + eps*e_k) - f(u))/eps and checking
+its difference from <tt class="docutils literal"><span class="pre">df(u)</span></tt> in norm-2.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This routine is currently naive and could be improved.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>N</strong> :</p>
+<blockquote>
+<div><p>number of variables</p>
+</div></blockquote>
+<p><strong>f</strong> :</p>
+<blockquote>
+<div><p>f(u) should return array(N) for u=array(N)</p>
+</div></blockquote>
+<p><strong>df</strong> :</p>
+<blockquote>
+<div><p>df(u) should return array(N,N) for u=array(N)</p>
+</div></blockquote>
+<p><strong>bounds</strong> :</p>
+<blockquote>
+<div><p>bounds for elements of u, as [(lower[0], upper[0]), ...]</p>
+</div></blockquote>
+<p><strong>eps</strong> :</p>
+<blockquote>
+<div><p>epsilon to use for evaluating the partial derivatives</p>
+</div></blockquote>
+<p><strong>rtol</strong> :</p>
+<blockquote>
+<div><p>relative tolerance to allow</p>
+</div></blockquote>
+<p><strong>atol</strong> :</p>
+<blockquote>
+<div><p>absolute tolerance to allow</p>
+</div></blockquote>
+<p><strong>times</strong> :</p>
+<blockquote>
+<div><p>how many random checks to perform</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>ok</strong> : bool</p>
+<blockquote class="last">
+<div><p>True if <tt class="docutils literal"><span class="pre">df</span></tt> passes the test, False otherwise.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scikits.bvp1lg.jacobian.jacobian">
+<tt class="descclassname">scikits.bvp1lg.jacobian.</tt><tt class="descname">jacobian</tt><big>(</big><em>f</em>, <em>u</em>, <em>eps=1e-06</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.jacobian.jacobian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate partial derivatives of f(u) numerically.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This routine is currently naive and could be improved.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>df</strong> : ndarray</p>
+<blockquote class="last">
+<div><p>(*f.shape, *u.shape) array <tt class="docutils literal"><span class="pre">df</span></tt>, where df[i,j] ~= (d f_i / u_j)(u)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">jacobian</a><ul>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mus.html"
+                        title="previous chapter">mus</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="examples.html"
+                        title="next chapter">Examples</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/jacobian.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mus.html" title="mus"
+             >previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Pauli Virtanen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

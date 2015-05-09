@@ -1,0 +1,496 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>colnew &mdash; scikits.bvp1lg 0.2.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/fixup.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="scikits.bvp1lg 0.2.8 documentation" href="index.html" />
+    <link rel="prev" title="scikits.bvp1lg" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="scikits.bvp1lg"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-scikits.bvp1lg.colnew"></span><div class="section" id="colnew">
+<h1>colnew<a class="headerlink" href="#colnew" title="Permalink to this headline">¶</a></h1>
+<p>Solve multi-point boundary value problems for ODEs</p>
+<ul class="simple">
+<li><a class="reference internal" href="#scikits.bvp1lg.colnew.solve" title="scikits.bvp1lg.colnew.solve"><tt class="xref py py-obj docutils literal"><span class="pre">solve</span></tt></a>: Solve linear and non-linear problems</li>
+<li><a class="reference internal" href="#scikits.bvp1lg.colnew.Solution" title="scikits.bvp1lg.colnew.Solution"><tt class="xref py py-obj docutils literal"><span class="pre">Solution</span></tt></a>: Returned by <a class="reference internal" href="#scikits.bvp1lg.colnew.solve" title="scikits.bvp1lg.colnew.solve"><tt class="xref py py-obj docutils literal"><span class="pre">solve</span></tt></a> to represent the solution</li>
+<li><a class="reference internal" href="#scikits.bvp1lg.colnew.check_jacobians" title="scikits.bvp1lg.colnew.check_jacobians"><tt class="xref py py-obj docutils literal"><span class="pre">check_jacobians</span></tt></a>: Check <tt class="docutils literal"><span class="pre">dfsub</span></tt> and <tt class="docutils literal"><span class="pre">dgsub</span></tt> for correctness</li>
+</ul>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="examples.html#module-scikits.bvp1lg.examples" title="scikits.bvp1lg.examples"><tt class="xref py py-obj docutils literal"><span class="pre">scikits.bvp1lg.examples</span></tt></a></p>
+</div>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>This module uses a modified version of COLNEW <a class="reference internal" href="#cn" id="id1">[CN]</a>, a mature solver for
+multi-point boundary value problems for ODEs.</p>
+<p>COLNEW handles only problems with separated boundary conditions.
+Non-separated problems can be converted to separated form for example
+by adding dummy variables:</p>
+<div class="math">
+\[u''(x) = f(x, u)\]\[u(0) + u(1) = 1\]\[u(0) u(1) = 2\]</div>
+<p>can be transformed to</p>
+<div class="math">
+\[u''(x) = f(x, u)\]\[v'(x) = 0\]\[v(0) - u(0) = 0\]\[v(1) + u(1) = 1\]\[v(1) u(1) = 2\]</div>
+<p>Similarly, problems with constant parameters</p>
+<div class="math">
+\[u''(x) + (a + 2 \cos(2 x)) u(x) = 0\]\[u'(0) = 0, u(0) = 1, u'(\pi) = 0\]</div>
+<p>can be transformed to</p>
+<div class="math">
+\[u''(x) + (a(x) + 2 \cos(2 x)) u(x) = 0\]\[a'(x) = 0\]\[u'(0) = 0, u(0) = 1, u'(\pi) = 0\]</div>
+<p>This may make the problem non-linear.</p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="cn" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[CN]</a></td><td>U. Ascher and G. Bader (and J. Christiansen and R. D. Russell).
+SIAM J. Sci. Comput. 8, 483 (1987).
+<a class="reference external" href="http://www.netlib.org/ode/colnew.f">http://www.netlib.org/ode/colnew.f</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="scikits.bvp1lg.colnew.DEBUG">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">DEBUG</tt><em class="property"> = 2</em><a class="headerlink" href="#scikits.bvp1lg.colnew.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print debug output</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="scikits.bvp1lg.colnew.INFO">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">INFO</tt><em class="property"> = 1</em><a class="headerlink" href="#scikits.bvp1lg.colnew.INFO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print selected output</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="scikits.bvp1lg.colnew.REGULAR">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">REGULAR</tt><em class="property"> = 0</em><a class="headerlink" href="#scikits.bvp1lg.colnew.REGULAR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The problem is regular</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="scikits.bvp1lg.colnew.SENSITIVE">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">SENSITIVE</tt><em class="property"> = 1</em><a class="headerlink" href="#scikits.bvp1lg.colnew.SENSITIVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The problem is sensitive. The nonlinear iteration should not rely on past covergence.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="scikits.bvp1lg.colnew.SILENT">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">SILENT</tt><em class="property"> = 0</em><a class="headerlink" href="#scikits.bvp1lg.colnew.SILENT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print no messages</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="scikits.bvp1lg.colnew.Solution">
+<em class="property">class </em><tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">Solution</tt><big>(</big><em>ispace</em>, <em>fspace</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>A solution to a boundary value problem for an ODE</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#scikits.bvp1lg.colnew.Solution.get_mesh" title="scikits.bvp1lg.colnew.Solution.get_mesh"><tt class="xref py py-obj docutils literal"><span class="pre">get_mesh</span></tt></a>()</td>
+<td>Get the mesh points on which the solution is specified</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#scikits.bvp1lg.colnew.Solution.get_mesh_values" title="scikits.bvp1lg.colnew.Solution.get_mesh_values"><tt class="xref py py-obj docutils literal"><span class="pre">get_mesh_values</span></tt></a>()</td>
+<td>Get the solution at the mesh points</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="scikits.bvp1lg.colnew.Solution.fspace">
+<tt class="descname">fspace</tt><em class="property"> = None</em><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution.fspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>The FSPACE vector provided by COLNEW</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scikits.bvp1lg.colnew.Solution.get_mesh">
+<tt class="descname">get_mesh</tt><big>(</big><big>)</big><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution.get_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mesh points on which the solution is specified</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>mesh</strong> : ndarray of float, shape (nmesh,)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scikits.bvp1lg.colnew.Solution.get_mesh_values">
+<tt class="descname">get_mesh_values</tt><big>(</big><big>)</big><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution.get_mesh_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the solution at the mesh points</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>values</strong> : ndarray</p>
+<blockquote class="last">
+<div><p><tt class="docutils literal"><span class="pre">self(self.mesh)</span></tt></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scikits.bvp1lg.colnew.Solution.ispace">
+<tt class="descname">ispace</tt><em class="property"> = None</em><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution.ispace" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ISPACE vector provided by COLNEW</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scikits.bvp1lg.colnew.Solution.mesh">
+<tt class="descname">mesh</tt><a class="headerlink" href="#scikits.bvp1lg.colnew.Solution.mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mesh on which the solution is specified</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scikits.bvp1lg.colnew.check_jacobians">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">check_jacobians</tt><big>(</big><em>boundary_points</em>, <em>degrees</em>, <em>fsub</em>, <em>gsub</em>, <em>dfsub</em>, <em>dgsub</em>, <em>vectorized=True</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.colnew.check_jacobians" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the Jacobian functions match numerically evaluated derivatives.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>degrees, boundary_points, fsub, dfsub, gsub, dsub, vectorized</strong> :</p>
+<blockquote>
+<div><p>As for <a class="reference internal" href="#scikits.bvp1lg.colnew.solve" title="scikits.bvp1lg.colnew.solve"><tt class="xref py py-obj docutils literal"><span class="pre">solve</span></tt></a>.</p>
+</div></blockquote>
+<p><strong>kw</strong> :</p>
+<blockquote>
+<div><p>Passed on to <em class="xref py py-obj">jacobian.check_jacobian</em></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong> :</p>
+<blockquote class="last">
+<div><p>If the jacobians seem to be invalid.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scikits.bvp1lg.colnew.solve">
+<tt class="descclassname">scikits.bvp1lg.colnew.</tt><tt class="descname">solve</tt><big>(</big><em>boundary_points</em>, <em>degrees</em>, <em>fsub</em>, <em>gsub</em>, <em>dfsub=None</em>, <em>dgsub=None</em>, <em>left=None</em>, <em>right=None</em>, <em>is_linear=False</em>, <em>initial_guess=None</em>, <em>coarsen_initial_guess_mesh=True</em>, <em>initial_mesh=None</em>, <em>tolerances=None</em>, <em>adaptive_mesh_selection=True</em>, <em>verbosity=0</em>, <em>collocation_points=None</em>, <em>extra_fixed_points=None</em>, <em>problem_regularity=0</em>, <em>maximum_mesh_size=100</em>, <em>vectorized=True</em>, <em>is_complex=False</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.colnew.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve a multi-point boundary value problem for a system of ODEs.</p>
+<p>The mixed-order system is:</p>
+<div class="highlight-python"><div class="highlight"><pre>ncomp = len(degrees)
+mstar = sum(degrees)
+
+1 &lt;= min(degrees) &lt;= max(degrees) &lt;= 4
+
+u_i^{(m_i)}(x) = f_i(x, z(x))       i = 0, ..., ncomp-1
+                                    left &lt;= x &lt;= right
+
+g_j(zeta_j, z(zeta_j)) = 0          j = 0, ..., mstar-1
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">u(x)</span></tt> is the solution vector at position <tt class="docutils literal"><span class="pre">x</span></tt> and
+<tt class="docutils literal"><span class="pre">zeta</span> <span class="pre">=</span> <span class="pre">boundary_points</span></tt> specifies the boundary points.</p>
+<p>The solution vector is represented by <tt class="docutils literal"><span class="pre">z</span></tt>-vector:</p>
+<div class="highlight-python"><div class="highlight"><pre>z = [u_1, u_1&#39;, ..., u_1^{m_1-1}, u_2, u_2&#39;, ..., u_{mstar-1}]
+</pre></div>
+</div>
+<p>It is of shape (mstar,) and contains derivatives of orders &lt; m_i.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<dl class="last docutils">
+<dt>Colnew has the hard-coded problem size limits::</dt>
+<dd>ncomp &lt;= 256
+mstar &lt;= 512</dd>
+</dl>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>boundary_points</strong> :</p>
+<blockquote>
+<div><p>Points where i:th boundary condition is given, as a (mstar,) array,
+with left &lt;= boundary_points[i] &lt;= right for all i.
+It must be sorted in increasing order.</p>
+</div></blockquote>
+<p><strong>degrees</strong> : list of integers</p>
+<blockquote>
+<div><p>Degree of i:th equation is <tt class="docutils literal"><span class="pre">degree[i]</span></tt>.
+It is required that <tt class="docutils literal"><span class="pre">1</span> <span class="pre">&lt;=</span> <span class="pre">degree[i]</span> <span class="pre">&lt;=</span> <span class="pre">4</span></tt>.</p>
+</div></blockquote>
+<p><strong>fsub</strong> : callable</p>
+<blockquote>
+<div><p>Function <tt class="docutils literal"><span class="pre">f</span></tt>, given as <tt class="docutils literal"><span class="pre">def</span> <span class="pre">fsub(x,</span> <span class="pre">z):</span> <span class="pre">return</span> <span class="pre">f</span></tt>, where:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>    <span class="o">=</span> <span class="n">x_j</span>                             <span class="p">(</span><span class="n">nx</span><span class="p">,)</span>
+<span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_i</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>                       <span class="p">(</span><span class="n">mstar</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+<span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_i</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">z</span><span class="p">[:,</span><span class="n">k</span><span class="p">])</span>               <span class="p">(</span><span class="n">ncomp</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If not vectorized, the last dimension is omitted for all variables.
+The function must be local: f[:,k] can only depend on z[:,k].</p>
+</div></blockquote>
+<p><strong>gsub</strong> : callable</p>
+<blockquote>
+<div><p>Function <tt class="docutils literal"><span class="pre">g</span></tt>, given as <tt class="docutils literal"><span class="pre">def</span> <span class="pre">gsub(z):</span> <span class="pre">return</span> <span class="pre">g</span></tt>, where:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_i</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="n">zeta_j</span><span class="p">))</span>                  <span class="p">(</span><span class="n">mstar</span><span class="p">,</span> <span class="n">mstar</span><span class="p">)</span>
+<span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>    <span class="o">=</span> <span class="n">g_i</span><span class="p">(</span><span class="n">zeta_i</span><span class="p">,</span> <span class="n">z</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="n">zeta_i</span><span class="p">)))</span>       <span class="p">(</span><span class="n">mstar</span><span class="p">,)</span>
+</pre></div>
+</div>
+<p>Boundary conditions must be separated: g[:, j] may depend only
+on z[:, j].</p>
+</div></blockquote>
+<p><strong>dfsub</strong> : callable, optional</p>
+<blockquote>
+<div><p>Jacobian of <tt class="docutils literal"><span class="pre">f</span></tt>, given as <tt class="docutils literal"><span class="pre">def</span> <span class="pre">dfsub(x,</span> <span class="pre">z):</span> <span class="pre">return</span> <span class="pre">df</span></tt>, where:</p>
+<div class="highlight-python"><div class="highlight"><pre>x[j]        = x_j                         (nx,)
+z[j, k]     = z_j(x_k)                    (mstar, nx)
+df[i, j, k] = d f[i,k] / d z[j,k]         (ncomp, mstar, nx)
+</pre></div>
+</div>
+<p>If not vectorized, the last dimension is omitted for all variables.
+If None, a simple difference approximation is used.</p>
+</div></blockquote>
+<p><strong>dgsub</strong> : callable, optional</p>
+<blockquote>
+<div><p>Jacobian of <tt class="docutils literal"><span class="pre">g</span></tt>, given as <tt class="docutils literal"><span class="pre">def</span> <span class="pre">dgsub(z):</span> <span class="pre">return</span> <span class="pre">dg</span></tt>, where:</p>
+<div class="highlight-python"><div class="highlight"><pre>z[i, j]  = z_i(u(zeta_j))                 (mstar, mstar)
+dg[i, j] = (d g_i / d z_j)(zeta_i, z)     (mstar, mstar)
+</pre></div>
+</div>
+<p>If None, a simple difference approximation is used.</p>
+</div></blockquote>
+<p><strong>left</strong> : float, optional</p>
+<blockquote>
+<div><p>The left boundary point. If None, <tt class="docutils literal"><span class="pre">left</span> <span class="pre">=</span> <span class="pre">min(boundary_points)</span></tt>.</p>
+</div></blockquote>
+<p><strong>right</strong> : float, optional</p>
+<blockquote>
+<div><p>The right boundary point. If None, <tt class="docutils literal"><span class="pre">right</span> <span class="pre">=</span> <span class="pre">max(boundary_points)</span></tt>.</p>
+</div></blockquote>
+<p><strong>vectorized</strong> : bool, optional</p>
+<blockquote>
+<div><p>Are the functions <em class="xref py py-obj">fsub</em>, <em class="xref py py-obj">dfsub</em> and <em class="xref py py-obj">initial_guess</em> vectorized?</p>
+</div></blockquote>
+<p><strong>is_linear</strong> : bool, optional</p>
+<blockquote>
+<div><p>Is the system of equations linear?</p>
+</div></blockquote>
+<p><strong>initial_guess</strong> : callable or Solution, optional</p>
+<blockquote>
+<div><p>Initial guess for continuation.
+Can be</p>
+<ol class="arabic">
+<li><p class="first">Callable <tt class="docutils literal"><span class="pre">def</span> <span class="pre">guess(x):</span> <span class="pre">return</span> <span class="pre">z,</span> <span class="pre">dm</span></tt>, where:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>     <span class="o">=</span> <span class="n">x_j</span>                     <span class="p">(</span><span class="n">nx</span><span class="p">,)</span>
+<span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>  <span class="o">=</span> <span class="n">z_i</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="n">x_j</span><span class="p">))</span>             <span class="p">(</span><span class="n">mstar</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+<span class="n">dm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_i</span><span class="o">^</span><span class="p">{</span><span class="n">m_i</span><span class="p">}(</span><span class="n">x_j</span><span class="p">)</span>          <span class="p">(</span><span class="n">ncomp</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If not vectorized, the last dimension is omitted for all
+variables.</p>
+</li>
+<li><p class="first">Previously obtained <a class="reference internal" href="#scikits.bvp1lg.colnew.Solution" title="scikits.bvp1lg.colnew.Solution"><tt class="xref py py-obj docutils literal"><span class="pre">Solution</span></tt></a></p>
+</li>
+<li><p class="first">None, indicating that a default initial guess is to be used.</p>
+</li>
+</ol>
+</div></blockquote>
+<p><strong>tolerances</strong> : list of float, optional</p>
+<blockquote>
+<div><p>Tolerances for components of the solution.
+<tt class="docutils literal"><span class="pre">tolerance[i]</span></tt> gives the tolerance for i:th component of z-vector.
+If <tt class="docutils literal"><span class="pre">tolerance[i]</span> <span class="pre">==</span> <span class="pre">0</span></tt>, then no tolerance is imposed for that
+component.</p>
+</div></blockquote>
+<p><strong>adaptive_mesh_selection</strong> : bool, optional</p>
+<blockquote>
+<div><p>Use adaptive mesh selection. If disabled, trivial mesh refinement
+is used &#8211; in this case the initial mesh to use must be given in
+<tt class="docutils literal"><span class="pre">initial_mesh</span></tt>.</p>
+</div></blockquote>
+<p><strong>verbosity</strong> : int, optional</p>
+<blockquote>
+<div><p>Amount of messages to show. 0 means silent, 1 selected printout,
+and 2 diagnostic printout.</p>
+</div></blockquote>
+<p><strong>collocation_points</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of collocation points in each subinterval, or None for
+a sensible default. It is required that
+<tt class="docutils literal"><span class="pre">max(degrees)</span> <span class="pre">&lt;=</span> <span class="pre">collocation_points</span> <span class="pre">&lt;=</span> <span class="pre">7</span></tt>.</p>
+</div></blockquote>
+<p><strong>extra_fixed_points</strong> : list of float, optional</p>
+<blockquote>
+<div><p>Points to fix in the mesh, in addition to boundary_points.
+(E.g. known boundary layers etc.)</p>
+</div></blockquote>
+<p><strong>problem_regularity</strong> : int, optional</p>
+<blockquote>
+<div><p>How regular the problem is. Can be REGULAR (0) or SENSITIVE (1).
+Usually, SENSITIVE should not be needed.</p>
+</div></blockquote>
+<p><strong>maximum_mesh_size</strong> : int, optional</p>
+<blockquote>
+<div><p>Maximum number of points to allow in the mesh.</p>
+</div></blockquote>
+<p><strong>is_complex</strong> : bool, optional</p>
+<blockquote>
+<div><p>Whether the problem is complex-valued.
+The equation must be analytical in the unknown variables.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>sol</strong> : Solution</p>
+<blockquote>
+<div><p>Object representing the solution.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong> :</p>
+<blockquote>
+<div><p>Invalid input</p>
+</div></blockquote>
+<p><strong>scikits.bvp1lg.NoConvergence</strong> :</p>
+<blockquote>
+<div><p>Numerical convergence problems</p>
+</div></blockquote>
+<p><strong>scikits.bvp1lg.TooManySubintervals</strong> :</p>
+<blockquote>
+<div><p><tt class="docutils literal"><span class="pre">maximum_mesh_size</span></tt> too small to satisfy tolerances</p>
+</div></blockquote>
+<p><strong>scikits.bvp1lg.SingularCollocationMatrix</strong> :</p>
+<blockquote>
+<div><p>Singular collocation matrix (check your jacobians)</p>
+</div></blockquote>
+<p><strong>SystemError</strong> :</p>
+<blockquote class="last">
+<div><p>Invalid output from user routines. (FIXME: these should be fixed)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">colnew</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">scikits.bvp1lg</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/colnew.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="scikits.bvp1lg"
+             >previous</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Pauli Virtanen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

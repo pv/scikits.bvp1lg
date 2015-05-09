@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mus &mdash; scikits.bvp1lg 0.2.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/fixup.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="scikits.bvp1lg 0.2.8 documentation" href="index.html" />
+    <link rel="next" title="jacobian" href="jacobian.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jacobian.html" title="jacobian"
+             accesskey="N">next</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-scikits.bvp1lg.mus"></span><div class="section" id="mus">
+<h1>mus<a class="headerlink" href="#mus" title="Permalink to this headline">¶</a></h1>
+<p>Solve two-point boundary value problems for ODEs</p>
+<ul class="simple">
+<li><a class="reference internal" href="#scikits.bvp1lg.mus.solve_linear" title="scikits.bvp1lg.mus.solve_linear"><tt class="xref py py-obj docutils literal"><span class="pre">solve_linear</span></tt></a>: Solve linear problems</li>
+<li><a class="reference internal" href="#scikits.bvp1lg.mus.solve_nonlinear" title="scikits.bvp1lg.mus.solve_nonlinear"><tt class="xref py py-obj docutils literal"><span class="pre">solve_nonlinear</span></tt></a>: Solve non-linear problems</li>
+</ul>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>This module uses the multiple shooting code MUS <a class="reference internal" href="#ms" id="id1">[MS]</a> for solving
+boundary-value problems.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>For some reason, this code can be slow for certain problems.
+This may be due to that</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>This wrapper uses MUS somehow incorrectly</li>
+<li>Speed of MUS is sensitive to tweaking parameters</li>
+<li>Python call overhead is significant for MUS as it is
+not vectorized over mesh points</li>
+</ol>
+</div></blockquote>
+<p class="last">I have not yet figured out what the problem is, so you may be
+better off using the <em class="xref py py-obj">colnew</em> package.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="ms" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[MS]</a></td><td>R. M. M. Mattheij, G. W. M. Staarink.
+EUT Report 92-WSK-01 (1992).</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scikits.bvp1lg.mus.solve_linear">
+<tt class="descclassname">scikits.bvp1lg.mus.</tt><tt class="descname">solve_linear</tt><big>(</big><em>f_homogenous</em>, <em>f_nonhomogenous</em>, <em>a</em>, <em>b</em>, <em>m_a</em>, <em>m_b</em>, <em>bcv</em>, <em>max_amplification=None</em>, <em>rtol=None</em>, <em>atol=None</em>, <em>output_points=None</em>, <em>verbosity=0</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.mus.solve_linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve a linear two-point boundary value problem.</p>
+<p>The problem is assumed to be:</p>
+<div class="highlight-python"><div class="highlight"><pre>u&#39;(t) = L(t) u(t) + r(t),        a &lt;= t &lt;= b
+M_A u(a) + M_B u(b) = BCV
+</pre></div>
+</div>
+<p>where u is the solution vector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><em class="xref py py-obj">f_homogenous</em>:
+Function <tt class="docutils literal"><span class="pre">f_h(t,</span> <span class="pre">u)</span></tt> that evaluates the homogenous part <tt class="docutils literal"><span class="pre">L(t)</span> <span class="pre">u</span></tt>.
+It should return an array of shape (n,).</li>
+<li><em class="xref py py-obj">f_nonhomogenous</em>:
+Function <tt class="docutils literal"><span class="pre">f(t,</span> <span class="pre">u)</span></tt> that evaluates <tt class="docutils literal"><span class="pre">L(t)</span> <span class="pre">u</span> <span class="pre">+</span> <span class="pre">r(t)</span></tt>.
+For homogenous problems, you can set f_nonhomogenous to None.
+It should return an array of shape (n,).</li>
+<li><em class="xref py py-obj">a</em>:
+Left boundary point.</li>
+<li><em class="xref py py-obj">b</em>:
+Right boundary point.</li>
+<li><em class="xref py py-obj">m_a</em>:
+The (n, n) M_A matrix in the boundary condition.</li>
+<li><em class="xref py py-obj">m_b</em>:
+The (n, n) M_B matrix in the boundary condition.</li>
+<li><em class="xref py py-obj">bcv</em>:
+The (n,) BCV vector in the boundary condition.</li>
+<li><em class="xref py py-obj">max_amplification</em>:
+The allowed incremental factor of the homogeneous solutions between
+two succesive output points. If the increment of a homogeneous
+solution between two succesive output points becomes greater
+than 2*AMP, a new output point is inserted.
+Set to None to use a sensible default.</li>
+<li><em class="xref py py-obj">rtol</em>:
+A relative tolerance for solving the differential equation.</li>
+<li><em class="xref py py-obj">atol</em>:
+An absolute tolerance for solving the differential equation.</li>
+<li><em class="xref py py-obj">output_points</em>:
+If integer: desired number of output points, based on <tt class="docutils literal"><span class="pre">amplification</span></tt>
+If array: desired output points
+If None: let the algorithm decide the output points</li>
+<li><em class="xref py py-obj">verbosity</em>:
+0 silent, 1 some output, 2 more output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple <tt class="docutils literal"><span class="pre">(t,</span> <span class="pre">y)</span></tt> where <tt class="docutils literal"><span class="pre">t</span></tt> is a (m,) array of mesh points, and
+<tt class="docutils literal"><span class="pre">y</span></tt> is (m, n) array of solution values at the mesh points.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; Invalid input</li>
+<li><strong>NoConvergence</strong> &#8211; Numerical convergence problems</li>
+<li><strong>SingularityError</strong> &#8211; Infinities occurred</li>
+<li><strong>SystemError</strong> &#8211; Invalid output from user routines. (FIXME: these should be fixed)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scikits.bvp1lg.mus.solve_nonlinear">
+<tt class="descclassname">scikits.bvp1lg.mus.</tt><tt class="descname">solve_nonlinear</tt><big>(</big><em>func</em>, <em>gsub</em>, <em>initial_guess</em>, <em>a</em>, <em>b</em>, <em>max_amplification=0</em>, <em>rtol=1e-05</em>, <em>atol=None</em>, <em>output_points=None</em>, <em>verbosity=0</em>, <em>iteration_limit=100</em><big>)</big><a class="headerlink" href="#scikits.bvp1lg.mus.solve_nonlinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Solve a non-linear two-point boundary value problem.</p>
+<p>The problem is assumed to be:</p>
+<div class="highlight-python"><div class="highlight"><pre>u&#39;(t) = f(t, u(t)),                   a &lt;= t &lt;= b
+g_j(u(a), u(b)) = 0                   j = 0, 1, ..., n
+</pre></div>
+</div>
+<p>where u is the solution vector with shape (n,).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first">
+<li><p class="first"><em class="xref py py-obj">func</em>:
+Function <tt class="docutils literal"><span class="pre">f</span> <span class="pre">=</span> <span class="pre">f(t,</span> <span class="pre">u)</span></tt> that evaluates derivatives.
+It should return an array of shape (n,).</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">gsub</em>:
+Function <tt class="docutils literal"><span class="pre">g,</span> <span class="pre">dga,</span> <span class="pre">dgb</span> <span class="pre">=</span> <span class="pre">g(u_a,</span> <span class="pre">u_b)</span></tt> that evaluates the boundary
+condition function and its Jacobian. The output should be:</p>
+<div class="highlight-python"><div class="highlight"><pre>g[i] = g_i(u_a, u_b),                          i = 0, ..., n-1
+dga[i,j] = d g_i(u_a, u_b) / d u_a[j],         j = 0, ..., n-1
+dgb[i,j] = d g_i(u_a, u_b) / d u_b[j],
+</pre></div>
+</div>
+</li>
+<li><p class="first"><em class="xref py py-obj">initial_guess</em>:
+Either callable <tt class="docutils literal"><span class="pre">u</span> <span class="pre">=</span> <span class="pre">initial_guess(t)</span></tt> that provides an initial
+guess for the solution vector, or a tuple <tt class="docutils literal"><span class="pre">(t,</span> <span class="pre">u)</span></tt> providing
+mesh and values for the guess &#8212; these are interpolated
+linearly to form the guess at all points.
+(Previous output from <tt class="docutils literal"><span class="pre">musn</span></tt> can be used as <tt class="docutils literal"><span class="pre">initial_guess</span></tt>.)</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">a</em>:
+Left boundary point.</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">b</em>:
+Right boundary point.</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">max_amplification</em>:
+The allowed incremental factor of the homogeneous solutions between
+two succesive output points. If the increment of a homogeneous
+solution between two succesive output points becomes greater
+than 2*AMP, a new output point is inserted.
+Set to None to use a sensible default.</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">rtol</em>:
+A relative tolerance for solving the differential equation.</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">atol</em>:
+An absolute tolerance for solving the differential equation.</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">output_points</em>:
+If integer: desired number of output points, based on <tt class="docutils literal"><span class="pre">amplification</span></tt>
+If array: desired output points
+If None: let the algorithm decide the output points</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">verbosity</em>:
+0 silent, 1 some output, 2 more output</p>
+</li>
+<li><p class="first"><em class="xref py py-obj">iteration_limit</em>:
+Maximum allowed number of Newton iterations</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple <tt class="docutils literal"><span class="pre">(t,</span> <span class="pre">u)</span></tt> where <tt class="docutils literal"><span class="pre">t</span></tt> is a (m,) array of mesh points, and
+<tt class="docutils literal"><span class="pre">u</span></tt> is (m, n) array of solution values at the mesh points.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ValueError</strong> &#8211; Invalid input</li>
+<li><strong>NoConvergence</strong> &#8211; Numerical convergence problems</li>
+<li><strong>SingularityError</strong> &#8211; Infinities occurred</li>
+<li><strong>SystemError</strong> &#8211; Invalid output from user routines. (FIXME: these should be fixed)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">mus</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="jacobian.html"
+                        title="next chapter">jacobian</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mus.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="jacobian.html" title="jacobian"
+             >next</a> |</li>
+        <li><a href="index.html">scikits.bvp1lg 0.2.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Pauli Virtanen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

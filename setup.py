@@ -30,7 +30,7 @@ MAINTAINER_EMAIL    = 'pav@iki.fi',
 URL                 = 'https://pv.github.io/scikits.bvp1lg'
 LICENSE             = 'Noncommercial, see LICENSE.txt'
 DOWNLOAD_URL        = 'https://pypi.python.org/pypi/scikits.bvp1lg'
-VERSION             = '0.2.8'
+VERSION             = '0.2.9.dev0'
 
 
 DOWNLOADABLE_FILES = [

@@ -528,7 +528,7 @@ def _colnew_solve(boundary_points,
     except (TypeError, ValueError):
         pass
 
-    if initial_mesh != None:
+    if initial_mesh is not None:
         fspace[:len(initial_mesh)] = initial_mesh
         ipar[2] = len(initial_mesh) - 1
         if not adaptive_mesh_selection:
